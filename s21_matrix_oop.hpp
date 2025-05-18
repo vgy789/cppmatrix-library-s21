@@ -1,0 +1,27 @@
+#ifndef SRC_S21_MATRIX_OOP_HPP
+#define SRC_S21_MATRIX_OOP_HPP
+
+#include <stdexcept>
+
+class S21Matrix {
+  unsigned int rows_, cols_;
+  double** matirx_;
+
+public:
+  S21Matrix(): rows_(0), cols_(0), matirx_(nullptr){};
+  S21Matrix(int rows, int cols);
+  S21Matrix(const S21Matrix& other);
+
+  int Rows() {return rows_;}
+  int Cols() {return cols_;}
+
+  double& operator()(int row, int col);
+  const double& operator()(int row, int col) const;
+
+private:
+  void AllocateMatrix();
+  void InitializeMatrix();
+  void DeallocateMatrix();
+};
+
+#endif  // SRC_S21_MATRIX_OOP_HPP
