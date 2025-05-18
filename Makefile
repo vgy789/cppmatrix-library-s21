@@ -18,15 +18,15 @@ all:	$(MAINBINARIES)		## Build all
 
 test: clean s21_matrix_oop.a		## Run tests
 
-%.o:	%.cpp %.hpp
-	$(CXX) $(CXXFLAGS) $(LIBS) $(OPTFLAGS) $^ -o $@
+%.o:	%.cpp
+	$(CXX) $(CXXFLAGS) $(LIBS) $(OPTFLAGS) -c $^ -o $@
 
 s21_matrix_oop.a:	$(OBJMODULES)		## Build static library
 	$(AR) -rcs $@ $^
 
 clean:		## Clean up
-	find . -name "*.o"| xargs rm -f
-	rm -f report.info $(TEST_RUNNER) s21_matrix.a
+	find . -name "*.o" | xargs rm -f
+	rm -f report.info $(TEST_RUNNER) $(MAINBINARIES)
 	rm -rf $(GCOV_REPORT_DIR)/
 
 gcov_report: test		## Generate gcov report

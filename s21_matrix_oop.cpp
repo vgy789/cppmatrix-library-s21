@@ -7,7 +7,7 @@ void S21Matrix::AllocateMatrix() {
   }
 
   try {
-    for (int i = 0; i < rows_; ++i) {
+    for (size_t i = 0; i < rows_; ++i) {
       matrix_[i] = new double[cols_];
     }
   } catch (const std::bad_alloc &e) {
@@ -79,8 +79,8 @@ S21Matrix::~S21Matrix() {
 }
 
 double &S21Matrix::operator()(int row, int col) {
-  if (matrix_ == nullptr || row < 0 || row >= rows_ || col < 0 ||
-      col >= cols_) {
+  if (matrix_ == nullptr || row < 0 || (unsigned)row >= rows_ || col < 0 ||
+  (unsigned)col >= cols_) {
     throw std::out_of_range(
         "Matrix index out of range or matrix not allocated.");
   }
@@ -88,8 +88,8 @@ double &S21Matrix::operator()(int row, int col) {
 }
 
 const double &S21Matrix::operator()(int row, int col) const {
-  if (matrix_ == nullptr || row < 0 || row >= rows_ || col < 0 ||
-      col >= cols_) {
+  if (matrix_ == nullptr || row < 0 || (unsigned)row >= rows_ || col < 0 ||
+  (unsigned)col >= cols_) {
     throw std::out_of_range(
         "Matrix index out of range or matrix not allocated.");
   }
