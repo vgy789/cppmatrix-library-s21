@@ -11,6 +11,7 @@ public:
   S21Matrix(): rows_(0), cols_(0), matirx_(nullptr){};
   S21Matrix(int rows, int cols);
   S21Matrix(const S21Matrix& other);
+  ~S21Matrix();
 
   int Rows() {return rows_;}
   int Cols() {return cols_;}
