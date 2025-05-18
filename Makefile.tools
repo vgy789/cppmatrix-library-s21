@@ -1,0 +1,17 @@
+CODE_STYLE = clang-format --style="{InsertBraces: true, InsertNewlineAtEOF: true, CommentPragmas: Insert, BasedOnStyle: Google}"
+FMT_FILES = find ./ -name '*.cpp' -print0 -or -name '*.hpp' -print0
+
+fmtcheck:		## Check formatting code
+	$(FMT_FILES) | xargs -0 $(CODE_STYLE) -n 
+
+fmt:		## Start formatting code
+	$(FMT_FILES) | xargs -0 $(CODE_STYLE) -i
+
+cppcheck:		## Start static code analyzing
+	cppcheck --enable=all --suppress=missingIncludeSystem .
+
+valgrind:		## Check leaks on Linux
+	valgrind --tool=memcheck --leak-check=yes ./$(TEST_EXEC)
+
+leaks:		## Check leaks on BSD Unix
+	leaks --atExit -- ./$(TEST_EXEC)
