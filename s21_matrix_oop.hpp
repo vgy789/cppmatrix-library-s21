@@ -5,21 +5,24 @@
 
 class S21Matrix {
   unsigned int rows_, cols_;
-  double** matirx_;
+  double **matrix_;
 
-public:
-  S21Matrix(): rows_(0), cols_(0), matirx_(nullptr){};
+ public:
+  S21Matrix() : rows_(0), cols_(0), matrix_(nullptr) {};
   S21Matrix(int rows, int cols);
-  S21Matrix(const S21Matrix& other);
+  S21Matrix(const S21Matrix &other);
+  S21Matrix(S21Matrix &&other);
   ~S21Matrix();
 
-  int Rows() {return rows_;}
-  int Cols() {return cols_;}
+  int Rows() { return rows_; }
+  int Cols() { return cols_; }
 
-  double& operator()(int row, int col);
-  const double& operator()(int row, int col) const;
+  S21Matrix &operator=(const S21Matrix &other);
+  S21Matrix &operator=(S21Matrix &&other);
+  double &operator()(int row, int col);
+  const double &operator()(int row, int col) const;
 
-private:
+ private:
   void AllocateMatrix();
   void InitializeMatrix();
   void DeallocateMatrix();
