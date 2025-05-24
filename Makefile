@@ -18,7 +18,9 @@ MAINBINARIES = s21_matrix_oop.a
 
 all:	$(MAINBINARIES)		## Build all
 
-test: clean s21_matrix_oop.a		## Run tests
+test:	clean s21_matrix_oop.a		## Run tests
+	$(CXX) $(CXXFLAGS) $(GTEST_LIB) tests.cpp s21_matrix_oop.a -o $(TEST_RUNNER)
+	./$(TEST_RUNNER)
 
 %.o:	%.cpp
 	$(CXX) $(CXXFLAGS) $(LIBS) $(OPTFLAGS) -c $^ -o $@
