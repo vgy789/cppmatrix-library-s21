@@ -1,11 +1,13 @@
 include Makefile.tools
 
-CXX = g++ -std=c++11
+CXX = g++ -std=c++17
 CXXFLAGS = -g -Wall -Werror -Wextra
 OPTFLAGS = -O2 -flto -march=native
 
+GTEST_DIR = ../googletest
+GTEST_LIB = -I$(GTEST_DIR)/googletest/include -I$(GTEST_DIR)/googletest $(GTEST_DIR)/googletest/src/gtest-all.cc
 GCOV_REPORT_DIR = ./html_gcov_report
-TEST_RUNNER = run_tests.out
+TEST_RUNNER = run_tests
 
 AR = ar
 
@@ -29,10 +31,10 @@ clean:		## Clean up
 	rm -f report.info $(TEST_RUNNER) $(MAINBINARIES)
 	rm -rf $(GCOV_REPORT_DIR)/
 
-gcov_report: test		## Generate gcov report
+gcov_report:	test		## Generate gcov report
 	lcov -c -t "$(TEST_RUNNER)" --directory ./ -o report.info --exclude *tests.c
 	genhtml -o $(GCOV_REPORT_DIR) report.info
 
 help:		## Display this help screen
-	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+	@grep -h -E '^[a-zA-Z0-9_.-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

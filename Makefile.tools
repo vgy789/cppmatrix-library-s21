@@ -1,17 +1,30 @@
 CODE_STYLE = clang-format --style="{InsertBraces: true, InsertNewlineAtEOF: true, CommentPragmas: Insert, BasedOnStyle: Google}"
 FMT_FILES = find ./ -name '*.cpp' -print0 -or -name '*.hpp' -print0
 
+cppcheck:		## Start static code analyzing
+	cppcheck --enable=all --suppress=missingIncludeSystem .
+
+#doxygen:		## Create Doxygen documentation
+
+#get_doxygen:		## Get and build doxygen
+
+get_googletest:		## Get and build googletest
+	cd .. && \
+	git clone "https://github.com/google/googletest" || \
+	cd googletest && \
+	mkdir -p build && \
+	cd build && \
+	cmake -DCMAKE_CXX_COMPILER=/usr/bin/g++ .. && \
+	make
+
 fmtcheck:		## Check formatting code
 	$(FMT_FILES) | xargs -0 $(CODE_STYLE) -n 
 
 fmt:		## Start formatting code
 	$(FMT_FILES) | xargs -0 $(CODE_STYLE) -i
 
-cppcheck:		## Start static code analyzing
-	cppcheck --enable=all --suppress=missingIncludeSystem .
+leaks:		## Check leaks on BSD Unix
+	leaks --atExit -- ./$(TEST_EXEC)
 
 valgrind:		## Check leaks on Linux
 	valgrind --tool=memcheck --leak-check=yes ./$(TEST_EXEC)
-
-leaks:		## Check leaks on BSD Unix
-	leaks --atExit -- ./$(TEST_EXEC)
