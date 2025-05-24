@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 class S21Matrix {
-  unsigned int rows_, cols_;
+  int rows_, cols_;
   double **matrix_;
 
  public:

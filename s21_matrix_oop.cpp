@@ -9,12 +9,12 @@
  */
 void S21Matrix::AllocateMatrix() {
   matrix_ = new double *[rows_];
-  for (size_t i = 0; i < rows_; ++i) {
+  for (int i = 0; i < rows_; ++i) {
     matrix_[i] = nullptr;
   }
 
   try {
-    for (size_t i = 0; i < rows_; ++i) {
+    for (int i = 0; i < rows_; ++i) {
       matrix_[i] = new double[cols_];
     }
   } catch (const std::bad_alloc &e) {
@@ -34,8 +34,8 @@ void S21Matrix::InitializeMatrix() {
     return;
   }
 
-  for (size_t i = 0; i < rows_; ++i) {
-    for (size_t j = 0; j < cols_; ++j) {
+  for (int i = 0; i < rows_; ++i) {
+    for (int j = 0; j < cols_; ++j) {
       matrix_[i][j] = 0;
     }
   }
@@ -49,7 +49,7 @@ void S21Matrix::DeallocateMatrix() {
     return;
   }
 
-  for (size_t i = 0; i < rows_; ++i) {
+  for (int i = 0; i < rows_; ++i) {
     if (matrix_[i] != nullptr) {
       delete[] matrix_[i];
     }
@@ -69,10 +69,12 @@ void S21Matrix::DeallocateMatrix() {
  *          Элементы матрицы инициализируются нулями.
  */
 S21Matrix::S21Matrix(int rows, int cols)
-    : rows_(rows), cols_(cols), matrix_(nullptr) {
-  if (rows_ <= 0 || cols_ <= 0) {
+    : rows_(0), cols_(0), matrix_(nullptr) {
+  if (rows <= 0 || cols <= 0) {
     throw std::invalid_argument("Matrix dimensions must be positive.");
   }
+  rows_ = rows;
+  cols_ = cols;
   AllocateMatrix();
   InitializeMatrix();
 }
@@ -84,14 +86,17 @@ S21Matrix::S21Matrix(int rows, int cols)
  */
 S21Matrix::S21Matrix(const S21Matrix &other)
     : rows_(0), cols_(0), matrix_(nullptr) {
-  if (other.rows_ > 0 && other.cols_ > 0) {
-    rows_ = other.rows_;
-    cols_ = other.cols_;
+  rows_ = other.rows_;
+  cols_ = other.cols_;
+  if (other.matrix_ == nullptr) {
+    matrix_ = nullptr;
+    return;
+  }
 
-    for (size_t i = 0; i < other.rows_; ++i) {
-      for (size_t j = 0; j < other.cols_; ++j) {
-        matrix_[i][j] = other.matrix_[i][j];
-      }
+  AllocateMatrix();
+  for (int i = 0; i < other.rows_; ++i) {
+    for (int j = 0; j < other.cols_; ++j) {
+      matrix_[i][j] = other.matrix_[i][j];
     }
   }
 }
@@ -123,8 +128,8 @@ S21Matrix::~S21Matrix() { DeallocateMatrix(); }
  выделена
  */
 double &S21Matrix::operator()(int row, int col) {
-  if (matrix_ == nullptr || row < 0 || (unsigned)row >= rows_ || col < 0 ||
-  (unsigned)col >= cols_) {
+  if (matrix_ == nullptr || row < 0 || row >= rows_ || col < 0 ||
+      col >= cols_) {
     throw std::out_of_range(
         "Matrix index out of range or matrix not allocated.");
   }
@@ -142,8 +147,8 @@ double &S21Matrix::operator()(int row, int col) {
  выделена
  */
 const double &S21Matrix::operator()(int row, int col) const {
-  if (matrix_ == nullptr || row < 0 || (unsigned)row >= rows_ || col < 0 ||
-  (unsigned)col >= cols_) {
+  if (matrix_ == nullptr || row < 0 || row >= rows_ || col < 0 ||
+      col >= cols_) {
     throw std::out_of_range(
         "Matrix index out of range or matrix not allocated.");
   }
@@ -161,15 +166,19 @@ S21Matrix &S21Matrix::operator=(const S21Matrix &other) {
     return *this;
   }
 
-  S21Matrix temp(other);
-
   DeallocateMatrix();
-  matrix_ = temp.matrix_;
-  rows_ = temp.rows_;
-  cols_ = temp.cols_;
+  rows_ = other.rows_;
+  cols_ = other.cols_;
+  matrix_ = nullptr;
 
-  temp.matrix_ = nullptr;
-
+  if (rows_ > 0 && cols_ > 0) {
+    AllocateMatrix();
+    for (int i = 0; i < rows_; ++i) {
+      for (int j = 0; j < cols_; ++j) {
+        matrix_[i][j] = other.matrix_[i][j];
+      }
+    }
+  }
   return *this;
 }
 
