@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include "s21_matrix_oop.hpp"
+#include "../s21_matrix_oop.hpp"
 
 namespace {
 TEST(S21MatrixTest, DefaultConstructor) {

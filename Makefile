@@ -4,10 +4,11 @@ CXX = g++ -std=c++17
 CXXFLAGS = -g -Wall -Werror -Wextra
 OPTFLAGS = -O2 -flto -march=native
 
-GTEST_DIR = ../googletest
-GTEST_LIB = -I$(GTEST_DIR)/googletest/include -I$(GTEST_DIR)/googletest $(GTEST_DIR)/googletest/src/gtest-all.cc
+GTEST_DIR = ../googletest/googletest
+GTEST_LIB = -I$(GTEST_DIR)/include -I$(GTEST_DIR) $(GTEST_DIR)/src/gtest-all.cc
 GCOV_REPORT_DIR = ./html_gcov_report
-TEST_RUNNER = run_tests
+TEST_DIR = unit_test
+TEST_RUNNER = $(TEST_DIR)/run_tests.out
 
 AR = ar
 
@@ -19,7 +20,7 @@ MAINBINARIES = s21_matrix_oop.a
 all:	$(MAINBINARIES)		## Build all
 
 test:	clean s21_matrix_oop.a		## Run tests
-	$(CXX) $(CXXFLAGS) $(GTEST_LIB) tests.cpp s21_matrix_oop.a -o $(TEST_RUNNER)
+	$(CXX) $(CXXFLAGS) $(GTEST_LIB) $(TEST_DIR)/tests.cpp s21_matrix_oop.a -o $(TEST_RUNNER)
 	./$(TEST_RUNNER)
 
 %.o:	%.cpp
