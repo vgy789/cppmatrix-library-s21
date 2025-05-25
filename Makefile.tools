@@ -8,13 +8,11 @@ cppcheck:		## Start static code analyzing
 
 #get_doxygen:		## Get and build doxygen
 
-get_googletest:		## Get and build googletest
-	cd .. && \
-	git clone "https://github.com/google/googletest" || \
+build_googletest:		## Build googletest
 	cd googletest && \
 	mkdir -p build && \
 	cd build && \
-	cmake -DCMAKE_CXX_COMPILER=/usr/bin/g++ .. && \
+	cmake -DCMAKE_CXX_COMPILER=/usr/bin/$(CXX) -DCMAKE_CXX_STANDARD=17 .. && \
 	make
 
 fmtcheck:		## Check formatting code
