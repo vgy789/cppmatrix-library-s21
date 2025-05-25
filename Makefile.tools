@@ -4,15 +4,11 @@ FMT_FILES = find ./ -name '*.cpp' -print0 -or -name '*.hpp' -print0
 cppcheck:		## Start static code analyzing
 	cppcheck --enable=all --suppress=missingIncludeSystem .
 
-#doxygen:		## Create Doxygen documentation
-
-#get_doxygen:		## Get and build doxygen
-
 build_googletest:		## Build googletest
 	cd googletest && \
 	mkdir -p build && \
 	cd build && \
-	cmake -DCMAKE_CXX_COMPILER=/usr/bin/$(CXX) -DCMAKE_CXX_STANDARD=17 .. && \
+	cmake -DBUILD_GMOCK=OFF -DCMAKE_CXX_COMPILER=/usr/bin/$(CXX) -DCMAKE_CXX_STANDARD=17 .. && \
 	make
 
 fmtcheck:		## Check formatting code
@@ -20,6 +16,11 @@ fmtcheck:		## Check formatting code
 
 fmt:		## Start formatting code
 	$(FMT_FILES) | xargs -0 $(CODE_STYLE) -i
+
+gcov_report:	CXXFLAGS += --coverage
+gcov_report:	test		## Generate gcov report (only gcc compiler)
+	lcov --gcov-tool=llvm-cov -c -t "fff" --directory ./ -o report.info --exclude *tests.cpp
+	genhtml -o $(GCOV_REPORT_DIR) report.info
 
 leaks:		## Check leaks on BSD Unix
 	leaks --atExit -- ./$(TEST_EXEC)
