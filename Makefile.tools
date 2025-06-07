@@ -4,7 +4,7 @@ FMT_FILES = find ./ -name '*.cpp' -print0 -or -name '*.hpp' -print0
 cppcheck:		## Start static code analyzing
 	cppcheck --enable=all --suppress=missingIncludeSystem .
 
-build_googletest:		## Build googletest
+build_googletest:	submodules		## Build googletest
 	cd googletest && \
 	mkdir -p build && \
 	cd build && \
@@ -16,6 +16,9 @@ fmtcheck:		## Check formatting code
 
 fmt:		## Start formatting code
 	$(FMT_FILES) | xargs -0 $(CODE_STYLE) -i
+
+submodules:		## Update submodules
+	git submodule update --init --recursive
 
 gcov_report:	CXXFLAGS += --coverage
 gcov_report:	test		## Generate gcov report (only gcc compiler)
