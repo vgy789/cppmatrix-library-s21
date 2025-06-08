@@ -11,6 +11,9 @@ build_googletest:	submodules		## Build googletest
 	cmake -DBUILD_GMOCK=OFF -DCMAKE_CXX_COMPILER=/usr/bin/$(CXX) -DCMAKE_CXX_STANDARD=17 .. && \
 	make
 
+doxydoc:		## Generate documentation with Doxygen
+	doxygen Doxyfile
+
 fmtcheck:		## Check formatting code
 	$(FMT_FILES) | xargs -0 $(CODE_STYLE) -n 
 
@@ -22,8 +25,12 @@ submodules:		## Update submodules
 
 gcov_report:	CXXFLAGS += --coverage
 gcov_report:	test		## Generate gcov report (only gcc compiler)
-	lcov --gcov-tool=llvm-cov -c -t "fff" --directory ./ -o report.info --exclude *tests.cpp
-	genhtml -o $(GCOV_REPORT_DIR) report.info
+	lcov -c --directory ./ -o report.info --exclude $(TEST_DIR)/*tests.cpp
+	lcov --extract report.info \
+    '*s21_matrix_oop.hpp' \
+    '*s21_matrix_oop.cpp' \
+    -o important_report.info
+	genhtml -o $(GCOV_REPORT_DIR) important_report.info
 
 leaks:		## Check leaks on BSD Unix
 	leaks --atExit -- ./$(TEST_EXEC)

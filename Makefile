@@ -35,8 +35,8 @@ s21_matrix_oop.a:	$(OBJMODULES)		## Build static library
 	$(AR) -rcs $@ $^
 
 clean:		## Clean up
-	find . -name "*.o" | xargs rm -f
-	rm -f report.info $(TEST_RUNNER) $(MAINBINARIES)
+	find . -name "*.o" -or -name "*.gcda" -or -name "*.gcno" | xargs rm -f
+	rm -f *.info $(TEST_RUNNER) $(MAINBINARIES)
 	rm -rf $(GCOV_REPORT_DIR)/
 
 help:		## Display this help screen
