@@ -1,15 +1,16 @@
+# --- clang-format ---
 CODE_STYLE = clang-format --style="{InsertBraces: true, InsertNewlineAtEOF: true, CommentPragmas: Insert, BasedOnStyle: Google}"
 FMT_FILES = find ./ -name '*.cpp' -print0 -or -name '*.hpp' -print0
 
+# --- Targets ---
+.PHONY: cppcheck clean_gcov doxydoc fmtcheck fmt submodules gcov_report leaks valgrind
+
+clean_gcov:
+	find . "*.o" -or -name "*.gcda" -or -name "*.gcno" -or -name "*.info" | xargs rm -f
+	rm -rf $(GCOV_REPORT_DIR)/ 
+
 cppcheck:		## Start static code analyzing
 	cppcheck --enable=all --suppress=missingIncludeSystem .
-
-build_googletest:	submodules		## Build googletest
-	cd googletest && \
-	mkdir -p build && \
-	cd build && \
-	cmake -DBUILD_GMOCK=OFF -DCMAKE_CXX_COMPILER=/usr/bin/$(CXX) -DCMAKE_CXX_STANDARD=17 .. && \
-	make
 
 doxydoc:		## Generate documentation with Doxygen
 	doxygen Doxyfile
@@ -24,16 +25,18 @@ submodules:		## Update submodules
 	git submodule update --init --recursive
 
 gcov_report:	CXXFLAGS += --coverage
-gcov_report:	test		## Generate gcov report (only gcc compiler)
-	lcov -c --directory ./ -o report.info --exclude $(TEST_DIR)/*tests.cpp
+gcov_report:	clean_gcov $(TEST_RUNNER)		## Generate gcov report (only gcc compiler)
+	./$(TEST_RUNNER)
+	lcov -c --directory ./ -o report.info --exclude "$(TEST_DIR)/*" --exclude "googletest/*"
 	lcov --extract report.info \
-    '*s21_matrix_oop.hpp' \
-    '*s21_matrix_oop.cpp' \
-    -o important_report.info
+    	'*s21_matrix_oop.hpp' \
+    	'*s21_matrix_oop.cpp' \
+    	-o important_report.info
 	genhtml -o $(GCOV_REPORT_DIR) important_report.info
 
-leaks:		## Check leaks on BSD Unix
-	leaks --atExit -- ./$(TEST_EXEC)
+leaks_test:		## Check leaks on BSD Unix
+	leaks --atExit -- ./$(TEST_RUNNER)
 
-valgrind:		## Check leaks on Linux
-	valgrind --tool=memcheck --leak-check=yes ./$(TEST_EXEC)
+valgrind_test:		## Check leaks on Linux
+	valgrind --tool=memcheck --leak-check=yes ./$(TEST_RUNNER)
+
