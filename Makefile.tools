@@ -1,12 +1,14 @@
 # --- clang-format ---
 CODE_STYLE = clang-format --style="{InsertBraces: true, InsertNewlineAtEOF: true, CommentPragmas: Insert, BasedOnStyle: Google}"
-FMT_FILES = find ./ -name '*.cpp' -print0 -or -name '*.hpp' -print0
+FMT_FILES = find ./ \
+	-name '*.cpp' -not -path './googletest/*' -print0 -or \
+	-name '*.hpp' -not -path './googletest/*' -print0
 
 # --- Targets ---
 .PHONY: cppcheck clean_gcov doxydoc fmtcheck fmt submodules gcov_report leaks valgrind
 
 clean_gcov:
-	find . "*.o" -or -name "*.gcda" -or -name "*.gcno" -or -name "*.info" | xargs rm -f
+	find . -name "*.o" -or -name "*.gcda" -or -name "*.gcno" -or -name "*.info" | xargs rm -f
 	rm -rf $(GCOV_REPORT_DIR)/ 
 
 cppcheck:		## Start static code analyzing
@@ -26,6 +28,9 @@ submodules:		## Update submodules
 
 gcov_report:	CXXFLAGS += --coverage
 gcov_report:	clean_gcov $(TEST_RUNNER)		## Generate gcov report (only gcc compiler)
+	ifeq ($(CXX),clang++)
+	$(error "Gcov report is not supported with Clang compiler. Use GCC instead.")
+	endif
 	./$(TEST_RUNNER)
 	lcov -c --directory ./ -o report.info --exclude "$(TEST_DIR)/*" --exclude "googletest/*"
 	lcov --extract report.info \
@@ -39,4 +44,3 @@ leaks_test:		## Check leaks on BSD Unix
 
 valgrind_test:		## Check leaks on Linux
 	valgrind --tool=memcheck --leak-check=yes ./$(TEST_RUNNER)
-
