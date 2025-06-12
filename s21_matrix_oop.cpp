@@ -1,6 +1,6 @@
 #include "s21_matrix_oop.hpp"
-
-#include <cstddef>
+#include <stdexcept>
+#include <cmath>
 
 /**
  * @brief Выделяет память для матрицы

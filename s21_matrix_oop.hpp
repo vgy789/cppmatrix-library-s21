@@ -1,7 +1,8 @@
 #ifndef SRC_S21_MATRIX_OOP_HPP
 #define SRC_S21_MATRIX_OOP_HPP
 
-#include <stdexcept>
+#include <cassert>
+#include <cstddef>
 
 class S21Matrix {
   int rows_, cols_;
@@ -13,6 +14,9 @@ class S21Matrix {
   S21Matrix(const S21Matrix &other);
   S21Matrix(S21Matrix &&other);
   ~S21Matrix();
+
+  int Rows() const { return rows_; }
+  int Cols() const { return cols_; }
 
   int Rows() { return rows_; }
   int Cols() { return cols_; }
