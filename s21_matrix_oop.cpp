@@ -198,3 +198,22 @@ S21Matrix &S21Matrix::operator=(S21Matrix &&other) {
   other.matrix_ = nullptr;
   return *this;
 }
+
+bool S21Matrix::EqMatrix(const S21Matrix &other) const {
+  if (this->Cols() != other.Cols() || this->Rows() != other.Rows()) {
+    return false;
+  }
+
+  for (int i = 0; i < this->Rows(); ++i) {
+    for (int j = 0; j < this->Cols(); ++j) {
+      if (fabs(this->matrix_[i][j] - other.matrix_[i][j]) > eps) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool S21Matrix::operator==(const S21Matrix &other) const {
+  return EqMatrix(other);
+}
