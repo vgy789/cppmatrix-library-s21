@@ -1,8 +1,7 @@
 #include "tests.hpp"
 
-#include <_stdlib.h>
-
 #include <cstdint>
+#include <stdexcept>
 
 #include "../s21_matrix_oop.hpp"
 #include "gtest/gtest.h"
@@ -36,20 +35,6 @@ TEST(S21MatrixTest, ExceptionSafetyGuarantee) {
   g_new_fail_on_count = -1;
 }
 
-TEST(S21MatrixTest, Getters) {
-  int sizes[matrix_in_array];
-  for (int i = 0; i < matrix_in_array; ++i) {
-    sizes[i] = 1 + (int)random() % 10;
-  }
-
-  const int len = sizeof(sizes) / sizeof(int);
-  for (int i = 0, j = len - 1; i < len; ++i, --j) {
-    S21Matrix matrix(sizes[i], sizes[j]);
-    EXPECT_EQ(matrix.Rows(), sizes[i]);
-    EXPECT_EQ(matrix.Cols(), sizes[j]);
-  }
-}
-
 TEST(S21MatrixTest, Constructor_Default) {
   S21Matrix m;
   EXPECT_EQ(m.Rows(), 0);
@@ -64,6 +49,26 @@ TEST(S21MatrixTest, Constructor_Parameterized) {
       check_sizes(i, j);
       check_zero_values(i, j);
     }
+  }
+}
+
+TEST(S21MatrixTest, Getters) {
+  int sizes[matrix_in_array];
+  for (int i = 0; i < matrix_in_array; ++i) {
+    sizes[i] = 1 + (int)random() % 10;
+  }
+
+  const int len = sizeof(sizes) / sizeof(int);
+  for (int i = 0, j = len - 1; i < len; ++i, --j) {
+    S21Matrix matrix(sizes[i], sizes[j]);
+    EXPECT_EQ(matrix.Rows(), sizes[i]);
+    EXPECT_EQ(matrix.Cols(), sizes[j]);
+    for (int i = 0; i < matrix.Rows(); ++i) {
+      for (int j = 0; j < matrix.Cols(); ++j) {
+        EXPECT_EQ(matrix(i, j), 0);
+      }
+    }
+    ASSERT_THROW(matrix(INT32_MAX, INT32_MAX), std::out_of_range);
   }
 }
 
@@ -147,6 +152,290 @@ TEST(S21MatrixTest, Setter) {
     }
   }
 }
+
+TEST(S21MatrixTest, Constructor_Array) {
+  double array[] = {2.6, -4.114, 0, 5.255};
+  S21Matrix matrix(2, 2, array);
+  EXPECT_EQ(matrix(0, 0), 2.6);
+  EXPECT_EQ(matrix(0, 1), -4.114);
+  EXPECT_EQ(matrix(1, 0), 0);
+  EXPECT_EQ(matrix(1, 1), 5.255);
+}
+
+void sum_tc(const S21Matrix A, const S21Matrix B, const int is_success,
+            const S21Matrix expected = S21Matrix()) {
+  S21Matrix copy_for_plus_equal = A;
+  S21Matrix copy_for_sum_matrix = A;
+  S21Matrix result_plus;
+  if (is_success) {
+    // operator+=
+    ASSERT_NO_THROW(copy_for_plus_equal += B);
+    EXPECT_TRUE(copy_for_plus_equal == expected);
+    // operator+
+    ASSERT_NO_THROW(result_plus = A + B);
+    EXPECT_TRUE(result_plus == expected);
+    // SumMatrix
+    ASSERT_NO_THROW(copy_for_sum_matrix.SumMatrix(B));
+    EXPECT_TRUE(copy_for_sum_matrix == expected);
+  } else {
+    // operator+=
+    ASSERT_THROW(copy_for_plus_equal += B, std::invalid_argument);
+    // operator+
+    ASSERT_THROW(A + B, std::invalid_argument);
+    // SumMatrix
+    ASSERT_THROW(copy_for_sum_matrix.SumMatrix(B), std::invalid_argument);
+  }
+}
+
+TEST(S21MatrixTest, Sum1) {
+  const S21Matrix A(2, 2, (double[]){2, 2, 1, 1});
+  const S21Matrix B(2, 2, (double[]){2, 2, 1, 1});
+  const S21Matrix expected(2, 2, (double[]){4, 4, 2, 2});
+  sum_tc(A, B, true, expected);
+}
+TEST(S21MatrixTest, Sum2) {
+  const S21Matrix A(1, 1, (double[]){5.1f});
+  const S21Matrix B(1, 1, (double[]){2.2f});
+  const S21Matrix expected(1, 1, (double[]){7.3f});
+  sum_tc(A, B, true, expected);
+}
+TEST(S21MatrixTest, Sum3) {
+  const S21Matrix A(1, 1, (double[]){5.1f});
+  const S21Matrix B(1, 2, (double[]){2.2f, 9});
+  sum_tc(A, B, false);
+}
+TEST(S21MatrixTest, Sum4) {
+  const S21Matrix A(1, 1);
+  const S21Matrix B(2, 2);
+  sum_tc(A, B, false);
+}
+
+void sub_tc(const S21Matrix A, const S21Matrix B, const int is_success,
+            const S21Matrix expected = S21Matrix()) {
+  S21Matrix copy_for_minus_equal = A;
+  S21Matrix copy_for_sub_matrix = A;
+  S21Matrix result_plus;
+  if (is_success) {
+    // operator-=
+    ASSERT_NO_THROW(copy_for_minus_equal -= B);
+    EXPECT_TRUE(copy_for_minus_equal == expected);
+    // operator-
+    ASSERT_NO_THROW(result_plus = A - B);
+    EXPECT_TRUE(result_plus == expected);
+    // SubMatrix
+    ASSERT_NO_THROW(copy_for_sub_matrix.SubMatrix(B));
+    EXPECT_TRUE(copy_for_sub_matrix == expected);
+  } else {
+    // operator-=
+    ASSERT_THROW(copy_for_minus_equal -= B, std::invalid_argument);
+    // operator-
+    ASSERT_THROW(A - B, std::invalid_argument);
+    // SubMatrix
+    ASSERT_THROW(copy_for_sub_matrix.SubMatrix(B), std::invalid_argument);
+  }
+}
+
+TEST(S21MatrixTest, Sub1) {
+  const S21Matrix A(2, 2, (double[]){4, 4, 2, 2});
+  const S21Matrix B(2, 2, (double[]){2, 2, 1, 1});
+  const S21Matrix expected(2, 2, (double[]){2, 2, 1, 1});
+  sub_tc(A, B, true, expected);
+}
+TEST(S21MatrixTest, Sub2) {
+  const S21Matrix A(1, 1, (double[]){7.3});
+  const S21Matrix B(1, 1, (double[]){2.2});
+  const S21Matrix expected(1, 1, (double[]){5.1});
+  sub_tc(A, B, true, expected);
+}
+TEST(S21MatrixTest, Sub3) {
+  const S21Matrix A(1, 1, (double[]){5.1f});
+  const S21Matrix B(1, 2, (double[]){2.2f, 9});
+  sub_tc(A, B, false);
+}
+TEST(S21MatrixTest, Sub4) {
+  const S21Matrix A(1, 1);
+  const S21Matrix B(2, 2);
+  sub_tc(A, B, false);
+}
+
+void mul_number_tc(const S21Matrix A, const int B, const int is_success,
+                   const S21Matrix expected = S21Matrix()) {
+  S21Matrix copy_for_mul_equal = A;
+  S21Matrix copy_for_mul_matrix = A;
+  S21Matrix result_mulply;
+  if (is_success) {
+    // operator*=
+    ASSERT_NO_THROW(copy_for_mul_equal *= B);
+    EXPECT_TRUE(copy_for_mul_equal == expected);
+    // operator*
+    ASSERT_NO_THROW(result_mulply = A * B);
+    EXPECT_TRUE(result_mulply == expected);
+    // MulNumber
+    ASSERT_NO_THROW(copy_for_mul_matrix.MulNumber(B));
+    EXPECT_TRUE(copy_for_mul_matrix == expected);
+  } else {
+    // operator*=
+    ASSERT_THROW(copy_for_mul_equal *= B, std::invalid_argument);
+    // operator*
+    ASSERT_THROW(A * B, std::invalid_argument);
+    // MulNumber
+    ASSERT_THROW(copy_for_mul_matrix.MulNumber(B), std::invalid_argument);
+  }
+}
+
+TEST(S21MatrixTest, MulNumber1) {
+  const S21Matrix A(2, 2, (double[]){4, 4, 2, 2});
+  const int B = 1;
+  const S21Matrix expected(2, 2, (double[]){4, 4, 2, 2});
+  mul_number_tc(A, B, true, expected);
+}
+TEST(S21MatrixTest, MulNumber2) {
+  const S21Matrix A(2, 2, (double[]){1.1f, -2.12454636f, 0.0, 100.0});
+  const int B = -3;
+  const S21Matrix expected(2, 2, (double[]){-3.3f, 6.37363908f, 0.0, -300.0});
+  mul_number_tc(A, B, true, expected);
+}
+
+void mul_matrix_tc(const S21Matrix A, const S21Matrix B, const int is_success,
+                   const S21Matrix expected = S21Matrix()) {
+  S21Matrix copy_for_mul_equal = A;
+  S21Matrix copy_for_mul_matrix = A;
+  S21Matrix result_mulply;
+  if (is_success) {
+    // operator*=
+    ASSERT_NO_THROW(copy_for_mul_equal *= B);
+    EXPECT_TRUE(copy_for_mul_equal == expected);
+    // operator*
+    ASSERT_NO_THROW(result_mulply = A * B);
+    EXPECT_TRUE(result_mulply == expected);
+    // MulMatrix
+    ASSERT_NO_THROW(copy_for_mul_matrix.MulMatrix(B));
+    EXPECT_TRUE(copy_for_mul_matrix == expected);
+  } else {
+    // operator*=
+    ASSERT_THROW(copy_for_mul_equal *= B, std::invalid_argument);
+    // operator*
+    ASSERT_THROW(A * B, std::invalid_argument);
+    // MulMatrix
+    ASSERT_THROW(copy_for_mul_matrix.MulMatrix(B), std::invalid_argument);
+  }
+}
+
+TEST(S21MatrixTest, MulMatrix1) {
+  const S21Matrix A(3, 2, (double[]){1, 4, 2, 5, 3, 6});
+  const S21Matrix B(2, 3, (double[]){1, -1, 1, 2, 3, 4});
+  const S21Matrix expected(3, 3, (double[]){9, 11, 17, 12, 13, 22, 15, 15, 27});
+  mul_matrix_tc(A, B, true, expected);
+}
+TEST(S21MatrixTest, MulMatrix2) {
+  const S21Matrix A(3, 3, (double[]){1, 2, 3, 4, 5, 6, 7, 8, 9});
+  const S21Matrix B(3, 3, (double[]){0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+  const S21Matrix expected(3, 3, (double[]){0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+  mul_matrix_tc(A, B, true, expected);
+}
+TEST(S21MatrixTest, MulMatrix3) {
+  const S21Matrix A(1, 1);
+  const S21Matrix B(3, 4);
+  mul_matrix_tc(A, B, false);
+}
+TEST(S21MatrixTest, MulMatrix4) {
+  const S21Matrix A(2, 3, (double[]){2.2, 2.0, 3.0, 0.0, 4.0, 1.0});
+  const S21Matrix B(
+      3, 4,
+      (double[]){0.0, 3.0, 4.0, 5.0, 2.0, 5.0, 6.0, 7.0, 8.0, 7.0, 5.0, 43.0});
+  const S21Matrix expected(
+      2, 4, (double[]){28.0, 37.6, 35.8, 154.0, 16.0, 27.0, 29.0, 71.0});
+  mul_matrix_tc(A, B, true, expected);
+}
+
+TEST(S21MatrixTest, Determinant1) {
+  S21Matrix A(1, 1, (double[]){-48});
+  double result;
+  ASSERT_NO_THROW(result = A.Determinant());
+  EXPECT_EQ(result, -48);
+}
+TEST(S21MatrixTest, Determinant2) {
+  S21Matrix A(2, 2, (double[]){1, 2, 3, 4});
+  double result;
+  ASSERT_NO_THROW(result = A.Determinant());
+  EXPECT_EQ(result, -2);
+}
+TEST(S21MatrixTest, Determinant3) {
+  S21Matrix A(3, 3, (double[]){1, 2, 3, 4, 5, 6, 7, 8, 9});
+  double result;
+  ASSERT_NO_THROW(result = A.Determinant());
+  EXPECT_EQ(result, 0);
+}
+TEST(S21MatrixTest, Determinant4) {
+  S21Matrix A(3, 3, (double[]){10, 2, 3, 4, 5, 6, 7, 8, 9});
+  double result;
+  ASSERT_NO_THROW(result = A.Determinant());
+  EXPECT_EQ(result, -27);
+}
+TEST(S21MatrixTest, Determinant5) {
+  S21Matrix A(1, 2);
+  double result;
+  ASSERT_THROW(result = A.Determinant(), std::invalid_argument);
+}
+
+TEST(S21MatrixTest, Determinant6) {
+  S21Matrix A(1, 2);
+  double result;
+  ASSERT_THROW(result = A.Determinant(), std::invalid_argument);
+}
+
+TEST(S21MatrixTest, Determinant7) {
+  S21Matrix A(4, 4, (double[]){2, 4, 1, 1, 0, 2, 1, 0, 2, 1, 1, 3, 4, 0, 2, 3});
+  double result;
+  ASSERT_NO_THROW(result = A.Determinant());
+  EXPECT_EQ(result, -26);
+}
+
+TEST(S21MatrixTest, Determinant8) {
+  S21Matrix A(5, 5, (double[]){4.1, 1.2, 1.3, 2.4,  1.5, 1.1, 2.2, -1.3, 1.4,
+                               1.5, 3.1, 1.2, 1.3,  1.4, 1.5, 2.1, 1.2,  1.3,
+                               4.4, 1.5, 2.1, -1.2, 1.3, 1.4, 5.5});
+  double result;
+  ASSERT_NO_THROW(result = A.Determinant());
+  EXPECT_LT(fabs(108.16 - result), S21Matrix::kEpsilon);
+}
+
+TEST(S21MatrixTest, Transpose1) {
+  S21Matrix A(2, 2, (double[]){0, 1, 2, 3});
+  S21Matrix expected(2, 2, (double[]){0, 2, 1, 3});
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.Transpose());
+  EXPECT_EQ(result, expected);
+}
+TEST(S21MatrixTest, Transpose2) {
+  S21Matrix A(1, 1, (double[]){0});
+  S21Matrix expected(1, 1, (double[]){0});
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.Transpose());
+  EXPECT_EQ(result, expected);
+}
+TEST(S21MatrixTest, Transpose3) {
+  S21Matrix A(2, 2, (double[]){0, 0, 1, 1});
+  S21Matrix expected(2, 2, (double[]){0, 1, 0, 1});
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.Transpose());
+  EXPECT_EQ(result, expected);
+}
+TEST(S21MatrixTest, Transpose4) {
+  S21Matrix A(2, 3, (double[]){0, 0, 1, 1, 1, 2});
+  S21Matrix expected(3, 2, (double[]){0, 1, 0, 1, 1, 2});
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.Transpose());
+  EXPECT_EQ(result, expected);
+}
+TEST(S21MatrixTest, Transpose5) {
+  S21Matrix A(3, 2, (double[]){1, 4, 2, 5, 3, 6});
+  S21Matrix expected(2, 3, (double[]){1, 2, 3, 4, 5, 6});
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.Transpose());
+  EXPECT_EQ(result, expected);
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
