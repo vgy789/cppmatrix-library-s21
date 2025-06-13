@@ -301,8 +301,6 @@ S21Matrix S21Matrix::Transpose() const {
   return transpose;
 }
 
-bool S21Matrix::EqMatrix(const S21Matrix &other) const {
-
 bool S21Matrix::operator==(const S21Matrix &other) const {
   if (this->Cols() != other.Cols() || this->Rows() != other.Rows()) {
     return false;
