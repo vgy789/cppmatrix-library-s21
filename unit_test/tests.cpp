@@ -379,53 +379,46 @@ void TestMethodOperation(const S21Matrix& A, MethodOp method_action,
 
 template <class ErrType, typename MethodOp>
 void TestMethodOperationFailure(const S21Matrix& A, MethodOp method_action) {
-  ASSERT_THROW(A.Determinant(), ErrType);
+  ASSERT_THROW(method_action(A), ErrType);
 }
 
 TEST(S21MatrixTest, Determinant1) {
   double dataA[] = {-48};
   S21Matrix A(1, 1, dataA);
-  double result;
   TestMethodOperation<double>(
       A, [](const S21Matrix& a) { return a.Determinant(); }, -48);
 }
 TEST(S21MatrixTest, Determinant2) {
   double dataA[] = {1, 2, 3, 4};
   S21Matrix A(2, 2, dataA);
-  double result;
   TestMethodOperation<double>(
       A, [](const S21Matrix& a) { return a.Determinant(); }, -2);
 }
 TEST(S21MatrixTest, Determinant3) {
   double dataA[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   S21Matrix A(3, 3, dataA);
-  double result;
   TestMethodOperation<double>(
       A, [](const S21Matrix& a) { return a.Determinant(); }, 0);
 }
 TEST(S21MatrixTest, Determinant4) {
   double dataA[] = {10, 2, 3, 4, 5, 6, 7, 8, 9};
   S21Matrix A(3, 3, dataA);
-  double result;
   TestMethodOperation<double>(
       A, [](const S21Matrix& a) { return a.Determinant(); }, -27);
 }
 TEST(S21MatrixTest, Determinant5) {
   S21Matrix A(1, 2);
-  double result;
   TestMethodOperationFailure<std::invalid_argument>(
       A, [](const S21Matrix& a) { return a.Determinant(); });
 }
 TEST(S21MatrixTest, Determinant6) {
   S21Matrix A(1, 2);
-  double result;
   TestMethodOperationFailure<std::invalid_argument>(
       A, [](const S21Matrix& a) { return a.Determinant(); });
 }
 TEST(S21MatrixTest, Determinant7) {
   double dataA[] = {2, 4, 1, 1, 0, 2, 1, 0, 2, 1, 1, 3, 4, 0, 2, 3};
   S21Matrix A(4, 4, dataA);
-  double result;
   TestMethodOperation<double>(
       A, [](const S21Matrix& a) { return a.Determinant(); }, -26);
 }
@@ -434,7 +427,7 @@ TEST(S21MatrixTest, Determinant8) {
                     1.5, 3.1, 1.2, 1.3,  1.4, 1.5, 2.1, 1.2,  1.3,
                     4.4, 1.5, 2.1, -1.2, 1.3, 1.4, 5.5};
   S21Matrix A(5, 5, dataA);
-  double result;
+  double result = 0.0;
   ASSERT_NO_THROW(result = A.Determinant());
   EXPECT_LT(fabs(108.16 - result), S21Matrix::kEpsilon);
 }
