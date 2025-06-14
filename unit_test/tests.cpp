@@ -492,8 +492,10 @@ TEST(S21MatrixTest, Transpose5) {
 }
 
 TEST(S21MatrixTest, Complemet1) {
-  S21Matrix A(3, 3, (double[]){1, 2, 3, 0, 4, 2, 5, 2, 1});
-  S21Matrix expected(3, 3, (double[]){0, 10, -20, 4, -14, 8, -8, -2, 4});
+  double dataA[] = {1, 2, 3, 0, 4, 2, 5, 2, 1};
+  S21Matrix A(3, 3, dataA);
+  double dataExpected[] = {0, 10, -20, 4, -14, 8, -8, -2, 4};
+  S21Matrix expected(3, 3, dataExpected);
   S21Matrix result;
   A.CalcComplements();
   ASSERT_NO_THROW(result = A.CalcComplements());
@@ -501,8 +503,10 @@ TEST(S21MatrixTest, Complemet1) {
 }
 
 TEST(S21MatrixTest, Complemet2) {
-  S21Matrix A(2, 2, (double[]){1, 2, 3, 4});
-  S21Matrix expected(2, 2, (double[]){4, -3, -2, 1});
+  double dataA[] = {1, 2, 3, 4};
+  S21Matrix A(2, 2, dataA);
+  double dataExpected[] = {4, -3, -2, 1};
+  S21Matrix expected(2, 2, dataExpected);
   S21Matrix result;
   ASSERT_NO_THROW(result = A.CalcComplements());
   EXPECT_EQ(result, expected);
