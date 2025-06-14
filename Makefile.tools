@@ -27,10 +27,12 @@ submodules:		## Update submodules
 	git submodule update --init --recursive
 
 gcov_report:	CXXFLAGS += --coverage
-gcov_report:	clean_gcov $(TEST_RUNNER)		## Generate gcov report (only gcc compiler)
-	ifeq ($(CXX),clang++)
-	$(error "Gcov report is not supported with Clang compiler. Use GCC instead.")
-	endif
+gcov_report:	clean_gcov		## Generate gcov report (only gcc compiler)
+	@if [ "$(CXX)" = "clang++" ]; then \
+		echo "Bug: Gcov report is not supported by the Clang compiler. Use GCC instead."; \
+		exit 1; \
+	fi
+	$(MAKE) -C $(TEST_RUNNER)
 	./$(TEST_RUNNER)
 	lcov -c --directory ./ -o report.info --exclude "$(TEST_DIR)/*" --exclude "googletest/*"
 	lcov --extract report.info \

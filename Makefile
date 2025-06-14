@@ -42,7 +42,7 @@ s21_matrix_oop.a:	CXXFLAGS += $(OPTFLAGS)
 s21_matrix_oop.a:	$(OBJMODULES)		## Build static library
 	$(AR) -rcs $@ $^
 
-test:	CXXFLAGS = -g
+test:	CXXFLAGS += -g	# CXXFLAGS = -g
 test:	clean_runner	$(TEST_RUNNER)		## Run tests
 	./$(TEST_RUNNER)
 
