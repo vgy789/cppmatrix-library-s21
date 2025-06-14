@@ -490,6 +490,29 @@ TEST(S21MatrixTest, Transpose5) {
   ASSERT_NO_THROW(result = A.Transpose());
   EXPECT_EQ(result, expected);
 }
+
+TEST(S21MatrixTest, Complemet1) {
+  S21Matrix A(3, 3, (double[]){1, 2, 3, 0, 4, 2, 5, 2, 1});
+  S21Matrix expected(3, 3, (double[]){0, 10, -20, 4, -14, 8, -8, -2, 4});
+  S21Matrix result;
+  A.CalcComplements();
+  ASSERT_NO_THROW(result = A.CalcComplements());
+  EXPECT_EQ(result, expected);
+}
+
+TEST(S21MatrixTest, Complemet2) {
+  S21Matrix A(2, 2, (double[]){1, 2, 3, 4});
+  S21Matrix expected(2, 2, (double[]){4, -3, -2, 1});
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.CalcComplements());
+  EXPECT_EQ(result, expected);
+}
+
+TEST(S21MatrixTest, Complemet3) {
+  S21Matrix A(2, 3);
+  S21Matrix result;
+  ASSERT_THROW(result = A.CalcComplements(), std::invalid_argument);
+}
 }  // namespace
 
 int main(int argc, char** argv) {

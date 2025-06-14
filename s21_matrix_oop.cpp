@@ -264,16 +264,17 @@ S21Matrix S21Matrix::Submatrix(int row, int col) const {
 
 double S21Matrix::DetRecursive() const {
   double det = 0.0;
-  if (rows_ == 1) {
+  if (Rows() == 1) {
     return (*this)(0, 0);
   }
-  if (rows_ == 2) {
-    return (*this)(0, 0) * (*this)(1, 1) - (*this)(0, 1) * (*this)(1, 0);
+  if (Rows() == 2) {
+    return (*this)(0, 0) * (*this)(1, 1) - 
+           (*this)(0, 1) * (*this)(1, 0);
   }
   // https://ru.onlinemschool.com/math/library/matrix/minors/#h2
   // разложение по первой строке
   int sign = +1;
-  for (int k = 0; k < rows_; ++k) {
+  for (int k = 0; k < Rows(); ++k) {
     S21Matrix submatrix = this->Submatrix(0, k);
     det += sign * (*this)(0, k) * submatrix.DetRecursive();
     sign = -sign;
@@ -299,6 +300,39 @@ S21Matrix S21Matrix::Transpose() const {
     }
   }
   return transpose;
+}
+
+S21Matrix S21Matrix::MinorMatrix() const {
+  if (!IsSquare()) {
+    throw std::invalid_argument(
+        "Minor matrix is only defined for square matrices.");
+  }
+
+  S21Matrix M(Cols(), Rows());
+  for (int i = 0; i < Rows(); ++i) {
+    for (int j = 0; j < Cols(); ++j) {
+      S21Matrix submatrix = Submatrix(i, j);
+      M(i, j) = submatrix.Determinant();
+    }
+  }
+
+  return M;
+}
+
+S21Matrix S21Matrix::CalcComplements() const {
+  if (!IsSquare()) {
+    throw std::invalid_argument(
+        "Minor matrix is only defined for square matrices.");
+  }
+
+  S21Matrix result = this->MinorMatrix();
+  for (int i = 0; i < Rows(); ++i) {
+    for (int j = 0; j < Cols(); ++j) {
+      int sign = pow(-1, i+j);
+      result(i, j)= sign * result(i, j);
+    }
+  }
+  return result;
 }
 
 bool S21Matrix::operator==(const S21Matrix &other) const {

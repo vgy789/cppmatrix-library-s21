@@ -26,6 +26,7 @@ class S21Matrix {
   double Determinant() const;
 
   S21Matrix Transpose() const;
+  S21Matrix CalcComplements() const;
 
   void SumMatrix(const S21Matrix &other);
   S21Matrix &operator+=(const S21Matrix &other);
@@ -54,6 +55,7 @@ class S21Matrix {
 
   double DetRecursive() const;
   S21Matrix Submatrix(int row, int col) const;
+  S21Matrix MinorMatrix() const;
 };
 
 #endif  // SRC_S21_MATRIX_OOP_HPP
