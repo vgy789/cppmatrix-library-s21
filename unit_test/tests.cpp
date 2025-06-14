@@ -163,29 +163,55 @@ TEST(S21MatrixTest, Constructor_Array) {
   EXPECT_EQ(matrix(1, 1), 5.255);
 }
 
-void sum_tc(const S21Matrix A, const S21Matrix B, const int is_success,
-            const S21Matrix expected = S21Matrix()) {
-  S21Matrix copy_for_plus_equal = A;
-  S21Matrix copy_for_sum_matrix = A;
-  S21Matrix result_plus;
-  if (is_success) {
-    // operator+=
-    ASSERT_NO_THROW(copy_for_plus_equal += B);
-    EXPECT_TRUE(copy_for_plus_equal == expected);
-    // operator+
-    ASSERT_NO_THROW(result_plus = A + B);
-    EXPECT_TRUE(result_plus == expected);
-    // SumMatrix
-    ASSERT_NO_THROW(copy_for_sum_matrix.SumMatrix(B));
-    EXPECT_TRUE(copy_for_sum_matrix == expected);
-  } else {
-    // operator+=
-    ASSERT_THROW(copy_for_plus_equal += B, std::invalid_argument);
-    // operator+
-    ASSERT_THROW(A + B, std::invalid_argument);
-    // SumMatrix
-    ASSERT_THROW(copy_for_sum_matrix.SumMatrix(B), std::invalid_argument);
-  }
+template <typename InplaceOp, typename BinaryOp, typename MethodOp>
+void TestBinaryOperation(const S21Matrix& A, const S21Matrix& B,
+                         const S21Matrix& expected, InplaceOp inplace_op_action,
+                         BinaryOp binary_op_action, MethodOp method_action) {
+  S21Matrix copy_A_1 = A;
+  S21Matrix copy_A_2 = A;
+
+  // operator+=, -=
+  ASSERT_NO_THROW(inplace_op_action(copy_A_1, B));
+  EXPECT_EQ(copy_A_1, expected);
+  // operator+, -
+  S21Matrix result;
+  ASSERT_NO_THROW(result = binary_op_action(A, B));
+  EXPECT_EQ(result, expected);
+  // SumMatrix, SubMatrix, MulMatrix
+  ASSERT_NO_THROW(method_action(copy_A_2, B));
+  EXPECT_EQ(copy_A_2, expected);
+}
+
+template <typename InplaceOp, typename BinaryOp, typename MethodOp>
+void TestBinaryOperation(const S21Matrix& A, const double& B,
+                         const S21Matrix& expected, InplaceOp inplace_op_action,
+                         BinaryOp binary_op_action, MethodOp method_action) {
+  S21Matrix copy_A_1 = A;
+  S21Matrix copy_A_2 = A;
+
+  // operator*=
+  ASSERT_NO_THROW(inplace_op_action(copy_A_1, B));
+  EXPECT_EQ(copy_A_1, expected);
+  // operator*=
+  S21Matrix result;
+  ASSERT_NO_THROW(result = binary_op_action(A, B));
+  EXPECT_EQ(result, expected);
+  // MulNumber
+  ASSERT_NO_THROW(method_action(copy_A_2, B));
+  EXPECT_EQ(copy_A_2, expected);
+}
+
+template <typename InplaceOp, typename BinaryOp, typename MethodOp>
+void TestBinaryOperationFailure(const S21Matrix& A, const S21Matrix& B,
+                                InplaceOp inplace_op_action,
+                                BinaryOp binary_op_action,
+                                MethodOp method_action) {
+  S21Matrix copy_A_1 = A;
+  S21Matrix copy_A_2 = A;
+
+  ASSERT_THROW(inplace_op_action(copy_A_1, B), std::invalid_argument);
+  ASSERT_THROW(binary_op_action(A, B), std::invalid_argument);
+  ASSERT_THROW(method_action(copy_A_2, B), std::invalid_argument);
 }
 
 TEST(S21MatrixTest, Sum1) {
@@ -195,7 +221,10 @@ TEST(S21MatrixTest, Sum1) {
   const S21Matrix A(2, 2, dataA);
   const S21Matrix B(2, 2, dataB);
   const S21Matrix expected(2, 2, dataExpected);
-  sum_tc(A, B, true, expected);
+  TestBinaryOperation(
+      A, B, expected, [](S21Matrix& a, const S21Matrix& b) { return a += b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a + b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.SumMatrix(b); });
 }
 TEST(S21MatrixTest, Sum2) {
   double dataA[] = {5.1f};
@@ -204,44 +233,28 @@ TEST(S21MatrixTest, Sum2) {
   const S21Matrix A(1, 1, dataA);
   const S21Matrix B(1, 1, dataB);
   const S21Matrix expected(1, 1, dataExpected);
-  sum_tc(A, B, true, expected);
+  TestBinaryOperation(
+      A, B, expected, [](S21Matrix& a, const S21Matrix& b) { return a += b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a + b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.SumMatrix(b); });
 }
 TEST(S21MatrixTest, Sum3) {
   double dataA[] = {5.1f};
   double dataB[] = {2.2f, 9};
   const S21Matrix A(1, 1, dataA);
   const S21Matrix B(1, 2, dataB);
-  sum_tc(A, B, false);
+  TestBinaryOperationFailure(
+      A, B, [](S21Matrix& a, const S21Matrix& b) { return a += b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a + b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.SumMatrix(b); });
 }
 TEST(S21MatrixTest, Sum4) {
   const S21Matrix A(1, 1);
   const S21Matrix B(2, 2);
-  sum_tc(A, B, false);
-}
-
-void sub_tc(const S21Matrix A, const S21Matrix B, const int is_success,
-            const S21Matrix expected = S21Matrix()) {
-  S21Matrix copy_for_minus_equal = A;
-  S21Matrix copy_for_sub_matrix = A;
-  S21Matrix result_plus;
-  if (is_success) {
-    // operator-=
-    ASSERT_NO_THROW(copy_for_minus_equal -= B);
-    EXPECT_TRUE(copy_for_minus_equal == expected);
-    // operator-
-    ASSERT_NO_THROW(result_plus = A - B);
-    EXPECT_TRUE(result_plus == expected);
-    // SubMatrix
-    ASSERT_NO_THROW(copy_for_sub_matrix.SubMatrix(B));
-    EXPECT_TRUE(copy_for_sub_matrix == expected);
-  } else {
-    // operator-=
-    ASSERT_THROW(copy_for_minus_equal -= B, std::invalid_argument);
-    // operator-
-    ASSERT_THROW(A - B, std::invalid_argument);
-    // SubMatrix
-    ASSERT_THROW(copy_for_sub_matrix.SubMatrix(B), std::invalid_argument);
-  }
+  TestBinaryOperationFailure(
+      A, B, [](S21Matrix& a, const S21Matrix& b) { return a += b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a + b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.SumMatrix(b); });
 }
 
 TEST(S21MatrixTest, Sub1) {
@@ -251,7 +264,10 @@ TEST(S21MatrixTest, Sub1) {
   const S21Matrix A(2, 2, dataA);
   const S21Matrix B(2, 2, dataB);
   const S21Matrix expected(2, 2, dataExpected);
-  sub_tc(A, B, true, expected);
+  TestBinaryOperation(
+      A, B, expected, [](S21Matrix& a, const S21Matrix& b) { return a -= b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a - b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.SubMatrix(b); });
 }
 TEST(S21MatrixTest, Sub2) {
   double dataA[] = {7.3};
@@ -260,44 +276,28 @@ TEST(S21MatrixTest, Sub2) {
   const S21Matrix A(1, 1, dataA);
   const S21Matrix B(1, 1, dataB);
   const S21Matrix expected(1, 1, dataExpected);
-  sub_tc(A, B, true, expected);
+  TestBinaryOperation(
+      A, B, expected, [](S21Matrix& a, const S21Matrix& b) { return a -= b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a - b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.SubMatrix(b); });
 }
 TEST(S21MatrixTest, Sub3) {
   double dataA[] = {5.1f};
   double dataB[] = {2.2f, 9};
   const S21Matrix A(1, 1, dataA);
   const S21Matrix B(1, 2, dataB);
-  sub_tc(A, B, false);
+  TestBinaryOperationFailure(
+      A, B, [](S21Matrix& a, const S21Matrix& b) { return a -= b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a - b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.SubMatrix(b); });
 }
 TEST(S21MatrixTest, Sub4) {
   const S21Matrix A(1, 1);
   const S21Matrix B(2, 2);
-  sub_tc(A, B, false);
-}
-
-void mul_number_tc(const S21Matrix A, const int B, const int is_success,
-                   const S21Matrix expected = S21Matrix()) {
-  S21Matrix copy_for_mul_equal = A;
-  S21Matrix copy_for_mul_matrix = A;
-  S21Matrix result_mulply;
-  if (is_success) {
-    // operator*=
-    ASSERT_NO_THROW(copy_for_mul_equal *= B);
-    EXPECT_TRUE(copy_for_mul_equal == expected);
-    // operator*
-    ASSERT_NO_THROW(result_mulply = A * B);
-    EXPECT_TRUE(result_mulply == expected);
-    // MulNumber
-    ASSERT_NO_THROW(copy_for_mul_matrix.MulNumber(B));
-    EXPECT_TRUE(copy_for_mul_matrix == expected);
-  } else {
-    // operator*=
-    ASSERT_THROW(copy_for_mul_equal *= B, std::invalid_argument);
-    // operator*
-    ASSERT_THROW(A * B, std::invalid_argument);
-    // MulNumber
-    ASSERT_THROW(copy_for_mul_matrix.MulNumber(B), std::invalid_argument);
-  }
+  TestBinaryOperationFailure(
+      A, B, [](S21Matrix& a, const S21Matrix& b) { return a -= b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a - b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.SubMatrix(b); });
 }
 
 TEST(S21MatrixTest, MulNumber1) {
@@ -306,7 +306,10 @@ TEST(S21MatrixTest, MulNumber1) {
   const int B = 1;
   double dataExpected[] = {4, 4, 2, 2};
   const S21Matrix expected(2, 2, dataExpected);
-  mul_number_tc(A, B, true, expected);
+  TestBinaryOperation(
+      A, B, expected, [](S21Matrix& a, const double& b) { return a *= b; },
+      [](const S21Matrix& a, const double& b) { return a * b; },
+      [](S21Matrix& a, const double& b) { return a.MulNumber(b); });
 }
 TEST(S21MatrixTest, MulNumber2) {
   double dataA[] = {1.1f, -2.12454636f, 0.0, 100.0};
@@ -314,32 +317,10 @@ TEST(S21MatrixTest, MulNumber2) {
   const int B = -3;
   double dataExpected[] = {-3.3f, 6.37363908f, 0.0, -300.0};
   const S21Matrix expected(2, 2, dataExpected);
-  mul_number_tc(A, B, true, expected);
-}
-
-void mul_matrix_tc(const S21Matrix A, const S21Matrix B, const int is_success,
-                   const S21Matrix expected = S21Matrix()) {
-  S21Matrix copy_for_mul_equal = A;
-  S21Matrix copy_for_mul_matrix = A;
-  S21Matrix result_mulply;
-  if (is_success) {
-    // operator*=
-    ASSERT_NO_THROW(copy_for_mul_equal *= B);
-    EXPECT_TRUE(copy_for_mul_equal == expected);
-    // operator*
-    ASSERT_NO_THROW(result_mulply = A * B);
-    EXPECT_TRUE(result_mulply == expected);
-    // MulMatrix
-    ASSERT_NO_THROW(copy_for_mul_matrix.MulMatrix(B));
-    EXPECT_TRUE(copy_for_mul_matrix == expected);
-  } else {
-    // operator*=
-    ASSERT_THROW(copy_for_mul_equal *= B, std::invalid_argument);
-    // operator*
-    ASSERT_THROW(A * B, std::invalid_argument);
-    // MulMatrix
-    ASSERT_THROW(copy_for_mul_matrix.MulMatrix(B), std::invalid_argument);
-  }
+  TestBinaryOperation(
+      A, B, expected, [](S21Matrix& a, const double& b) { return a *= b; },
+      [](const S21Matrix& a, const double& b) { return a * b; },
+      [](S21Matrix& a, const double& b) { return a.MulNumber(b); });
 }
 
 TEST(S21MatrixTest, MulMatrix1) {
@@ -349,7 +330,10 @@ TEST(S21MatrixTest, MulMatrix1) {
   const S21Matrix B(2, 3, dataB);
   double dataExpected[] = {9, 11, 17, 12, 13, 22, 15, 15, 27};
   const S21Matrix expected(3, 3, dataExpected);
-  mul_matrix_tc(A, B, true, expected);
+  TestBinaryOperation(
+      A, B, expected, [](S21Matrix& a, const S21Matrix& b) { return a *= b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a * b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.MulMatrix(b); });
 }
 TEST(S21MatrixTest, MulMatrix2) {
   double dataA[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -358,12 +342,18 @@ TEST(S21MatrixTest, MulMatrix2) {
   const S21Matrix B(3, 3, dataB);
   double dataExpected[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
   const S21Matrix expected(3, 3, dataExpected);
-  mul_matrix_tc(A, B, true, expected);
+  TestBinaryOperation(
+      A, B, expected, [](S21Matrix& a, const S21Matrix& b) { return a *= b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a * b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.MulMatrix(b); });
 }
 TEST(S21MatrixTest, MulMatrix3) {
   const S21Matrix A(1, 1);
   const S21Matrix B(3, 4);
-  mul_matrix_tc(A, B, false);
+  TestBinaryOperationFailure(
+      A, B, [](S21Matrix& a, const S21Matrix& b) { return a *= b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a * b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.MulMatrix(b); });
 }
 TEST(S21MatrixTest, MulMatrix4) {
   double dataA[] = {2.2, 2.0, 3.0, 0.0, 4.0, 1.0};
@@ -373,53 +363,71 @@ TEST(S21MatrixTest, MulMatrix4) {
   const S21Matrix B(3, 4, dataB);
   double dataExpected[] = {28.0, 37.6, 35.8, 154.0, 16.0, 27.0, 29.0, 71.0};
   const S21Matrix expected(2, 4, dataExpected);
-  mul_matrix_tc(A, B, true, expected);
+  TestBinaryOperation(
+      A, B, expected, [](S21Matrix& a, const S21Matrix& b) { return a *= b; },
+      [](const S21Matrix& a, const S21Matrix& b) { return a * b; },
+      [](S21Matrix& a, const S21Matrix& b) { return a.MulMatrix(b); });
+}
+
+template <class ResultType, typename MethodOp>
+void TestMethodOperation(const S21Matrix& A, MethodOp method_action,
+                         const ResultType& expected) {
+  ResultType result;
+  ASSERT_NO_THROW(result = method_action(A));
+  EXPECT_EQ(result, expected);
+}
+
+template <class ErrType, typename MethodOp>
+void TestMethodOperationFailure(const S21Matrix& A, MethodOp method_action) {
+  ASSERT_THROW(A.Determinant(), ErrType);
 }
 
 TEST(S21MatrixTest, Determinant1) {
   double dataA[] = {-48};
   S21Matrix A(1, 1, dataA);
   double result;
-  ASSERT_NO_THROW(result = A.Determinant());
-  EXPECT_EQ(result, -48);
+  TestMethodOperation<double>(
+      A, [](const S21Matrix& a) { return a.Determinant(); }, -48);
 }
 TEST(S21MatrixTest, Determinant2) {
   double dataA[] = {1, 2, 3, 4};
   S21Matrix A(2, 2, dataA);
   double result;
-  ASSERT_NO_THROW(result = A.Determinant());
-  EXPECT_EQ(result, -2);
+  TestMethodOperation<double>(
+      A, [](const S21Matrix& a) { return a.Determinant(); }, -2);
 }
 TEST(S21MatrixTest, Determinant3) {
   double dataA[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   S21Matrix A(3, 3, dataA);
   double result;
-  ASSERT_NO_THROW(result = A.Determinant());
-  EXPECT_EQ(result, 0);
+  TestMethodOperation<double>(
+      A, [](const S21Matrix& a) { return a.Determinant(); }, 0);
 }
 TEST(S21MatrixTest, Determinant4) {
   double dataA[] = {10, 2, 3, 4, 5, 6, 7, 8, 9};
   S21Matrix A(3, 3, dataA);
   double result;
-  ASSERT_NO_THROW(result = A.Determinant());
-  EXPECT_EQ(result, -27);
+  TestMethodOperation<double>(
+      A, [](const S21Matrix& a) { return a.Determinant(); }, -27);
 }
 TEST(S21MatrixTest, Determinant5) {
   S21Matrix A(1, 2);
   double result;
-  ASSERT_THROW(result = A.Determinant(), std::invalid_argument);
+  TestMethodOperationFailure<std::invalid_argument>(
+      A, [](const S21Matrix& a) { return a.Determinant(); });
 }
 TEST(S21MatrixTest, Determinant6) {
   S21Matrix A(1, 2);
   double result;
-  ASSERT_THROW(result = A.Determinant(), std::invalid_argument);
+  TestMethodOperationFailure<std::invalid_argument>(
+      A, [](const S21Matrix& a) { return a.Determinant(); });
 }
 TEST(S21MatrixTest, Determinant7) {
   double dataA[] = {2, 4, 1, 1, 0, 2, 1, 0, 2, 1, 1, 3, 4, 0, 2, 3};
   S21Matrix A(4, 4, dataA);
   double result;
-  ASSERT_NO_THROW(result = A.Determinant());
-  EXPECT_EQ(result, -26);
+  TestMethodOperation<double>(
+      A, [](const S21Matrix& a) { return a.Determinant(); }, -26);
 }
 TEST(S21MatrixTest, Determinant8) {
   double dataA[] = {4.1, 1.2, 1.3, 2.4,  1.5, 1.1, 2.2, -1.3, 1.4,
@@ -436,45 +444,40 @@ TEST(S21MatrixTest, Transpose1) {
   S21Matrix A(2, 2, dataA);
   double dataExpected[] = {0, 2, 1, 3};
   S21Matrix expected(2, 2, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.Transpose());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.Transpose(); }, expected);
 }
 TEST(S21MatrixTest, Transpose2) {
   double dataA[] = {0};
   S21Matrix A(1, 1, dataA);
   double dataExpected[] = {0};
   S21Matrix expected(1, 1, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.Transpose());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.Transpose(); }, expected);
 }
 TEST(S21MatrixTest, Transpose3) {
   double dataA[] = {0, 0, 1, 1};
   S21Matrix A(2, 2, dataA);
   double dataExpected[] = {0, 1, 0, 1};
   S21Matrix expected(2, 2, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.Transpose());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.Transpose(); }, expected);
 }
 TEST(S21MatrixTest, Transpose4) {
   double dataA[] = {0, 0, 1, 1, 1, 2};
   S21Matrix A(2, 3, dataA);
   double dataExpected[] = {0, 1, 0, 1, 1, 2};
   S21Matrix expected(3, 2, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.Transpose());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.Transpose(); }, expected);
 }
 TEST(S21MatrixTest, Transpose5) {
   double dataA[] = {1, 4, 2, 5, 3, 6};
   S21Matrix A(3, 2, dataA);
   double dataExpected[] = {1, 2, 3, 4, 5, 6};
   S21Matrix expected(2, 3, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.Transpose());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.Transpose(); }, expected);
 }
 
 TEST(S21MatrixTest, Complemet1) {
@@ -482,23 +485,22 @@ TEST(S21MatrixTest, Complemet1) {
   S21Matrix A(3, 3, dataA);
   double dataExpected[] = {0, 10, -20, 4, -14, 8, -8, -2, 4};
   S21Matrix expected(3, 3, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.CalcComplements());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.CalcComplements(); }, expected);
 }
 TEST(S21MatrixTest, Complemet2) {
   double dataA[] = {1, 2, 3, 4};
   S21Matrix A(2, 2, dataA);
   double dataExpected[] = {4, -3, -2, 1};
   S21Matrix expected(2, 2, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.CalcComplements());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.CalcComplements(); }, expected);
 }
 TEST(S21MatrixTest, Complemet3) {
   S21Matrix A(2, 3);
   S21Matrix result;
-  ASSERT_THROW(result = A.CalcComplements(), std::invalid_argument);
+  TestMethodOperationFailure<std::invalid_argument>(
+      A, [](const S21Matrix& a) { return a.CalcComplements(); });
 }
 
 TEST(S21MatrixTest, Inverse1) {
@@ -506,18 +508,16 @@ TEST(S21MatrixTest, Inverse1) {
   S21Matrix A(3, 3, dataA);
   double dataExpected[] = {1, -1, 1, -38, 41, -34, 27, -29, 24};
   S21Matrix expected(3, 3, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.InverseMatrix());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.InverseMatrix(); }, expected);
 }
 TEST(S21MatrixTest, Inverse2) {
   double dataA[] = {2.1, 5.2, 6.1, 3.2};
   S21Matrix A(2, 2, dataA);
   double dataExpected[] = {-0.128, 0.208, 0.244, -0.084};
   S21Matrix expected(2, 2, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.InverseMatrix());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.InverseMatrix(); }, expected);
 }
 TEST(S21MatrixTest, Inverse3) {
   double dataA[] = {2, 1, 1, 1, 0, 2, 1, 0, 2, 1, 1, 3, 4, 0, 2, 1};
@@ -525,9 +525,8 @@ TEST(S21MatrixTest, Inverse3) {
   double dataExpected[] = {1.375, -0.5, -0.375, -0.25, 1.25, 0, -0.25, -0.5,
                            -2.5,  1,    0.5,    1,     -0.5, 0, 0.5,   0};
   S21Matrix expected(4, 4, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.InverseMatrix());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.InverseMatrix(); }, expected);
 }
 TEST(S21MatrixTest, Inverse4) {
   double dataA[] = {2, 1, 3, 4, 3, 1, 2, 3, 1};
@@ -535,14 +534,14 @@ TEST(S21MatrixTest, Inverse4) {
   double dataExpected[] = {0,     0.5,   -0.5,  -0.125, -0.25,
                            0.625, 0.375, -0.25, 0.125};
   S21Matrix expected(3, 3, dataExpected);
-  S21Matrix result;
-  ASSERT_NO_THROW(result = A.InverseMatrix());
-  EXPECT_EQ(result, expected);
+  TestMethodOperation<S21Matrix>(
+      A, [](const S21Matrix& a) { return a.InverseMatrix(); }, expected);
 }
 TEST(S21MatrixTest, Inverse5) {
   S21Matrix A(1, 2);
   S21Matrix result;
-  ASSERT_THROW(result = A.InverseMatrix(), std::invalid_argument);
+  TestMethodOperationFailure<std::invalid_argument>(
+      A, [](const S21Matrix& a) { return a.InverseMatrix(); });
 }
 }  // namespace
 
