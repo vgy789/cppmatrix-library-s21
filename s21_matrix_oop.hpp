@@ -10,7 +10,7 @@ class S21Matrix {
 
  public:
   static const double kEpsilon;
-  S21Matrix() : rows_(0), cols_(0), matrix_(nullptr){};
+  S21Matrix() : rows_(0), cols_(0), matrix_(nullptr) {};
   S21Matrix(int rows, int cols);
   S21Matrix(int rows, int cols, const double array[]);
   S21Matrix(const S21Matrix &other);
@@ -23,12 +23,9 @@ class S21Matrix {
   inline int Length() const { return Rows() * Cols(); }
   inline bool IsSquare() const { return Rows() == Cols(); }
   void Print() const;
-  double Determinant() const;
 
-  S21Matrix Transpose() const;
-  S21Matrix CalcComplements() const;
-  S21Matrix InverseMatrix() const;
-
+  bool EqMatrix(const S21Matrix &other) const;
+  bool operator==(const S21Matrix &other) const;
   void SumMatrix(const S21Matrix &other);
   S21Matrix &operator+=(const S21Matrix &other);
   S21Matrix operator+(const S21Matrix &other) const;
@@ -41,8 +38,11 @@ class S21Matrix {
   void MulMatrix(const S21Matrix &other);
   S21Matrix &operator*=(const S21Matrix &other);
   S21Matrix operator*(const S21Matrix &other) const;
-  bool EqMatrix(const S21Matrix &other) const;
-  bool operator==(const S21Matrix &other) const;
+
+  S21Matrix Transpose() const;
+  S21Matrix CalcComplements() const;
+  double Determinant() const;
+  S21Matrix InverseMatrix() const;
 
   S21Matrix &operator=(const S21Matrix &other);
   S21Matrix &operator=(S21Matrix &&other);

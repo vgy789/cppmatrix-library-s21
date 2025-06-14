@@ -13,14 +13,14 @@ const double S21Matrix::kEpsilon = 1.0e-6;
  * @throw std::bad_alloc если не удалось выделить память
  */
 void S21Matrix::AllocateMatrix() {
-  matrix_ = new double *[rows_];
-  for (int i = 0; i < rows_; ++i) {
+  matrix_ = new double *[Rows()];
+  for (int i = 0; i < Rows(); ++i) {
     matrix_[i] = nullptr;
   }
 
   try {
-    for (int i = 0; i < rows_; ++i) {
-      matrix_[i] = new double[cols_];
+    for (int i = 0; i < Rows(); ++i) {
+      matrix_[i] = new double[Cols()];
     }
   } catch (const std::bad_alloc &e) {
     DeallocateMatrix();
@@ -42,10 +42,10 @@ void S21Matrix::InitializeMatrix(const double *array) {
   if (matrix_ == nullptr) {
     return;
   }
-  for (int i = 0; i < rows_; ++i) {
-    for (int j = 0; j < cols_; ++j) {
+  for (int i = 0; i < Rows(); ++i) {
+    for (int j = 0; j < Cols(); ++j) {
       if (array) {
-        (*this)(i, j) = array[i * cols_ + j];
+        (*this)(i, j) = array[i * Cols() + j];
       } else {
         (*this)(i, j) = 0.0;
       }
@@ -61,7 +61,7 @@ void S21Matrix::DeallocateMatrix() {
     return;
   }
 
-  for (int i = 0; i < rows_; ++i) {
+  for (int i = 0; i < Rows(); ++i) {
     if (matrix_[i] != nullptr) {
       delete[] matrix_[i];
     }
@@ -114,16 +114,16 @@ S21Matrix::S21Matrix(int rows, int cols, const double *array)
  */
 S21Matrix::S21Matrix(const S21Matrix &other)
     : rows_(0), cols_(0), matrix_(nullptr) {
-  rows_ = other.rows_;
-  cols_ = other.cols_;
+  rows_ = other.Rows();
+  cols_ = other.Cols();
   if (other.matrix_ == nullptr) {
     matrix_ = nullptr;
     return;
   }
 
   AllocateMatrix();
-  for (int i = 0; i < other.rows_; ++i) {
-    for (int j = 0; j < other.cols_; ++j) {
+  for (int i = 0; i < other.Rows(); ++i) {
+    for (int j = 0; j < other.Cols(); ++j) {
       (*this)(i, j) = other(i, j);
     }
   }
@@ -156,8 +156,8 @@ S21Matrix::~S21Matrix() { DeallocateMatrix(); }
  выделена
  */
 double &S21Matrix::operator()(int row, int col) {
-  if (matrix_ == nullptr || row < 0 || row >= rows_ || col < 0 ||
-      col >= cols_) {
+  if (matrix_ == nullptr || row < 0 || row >= Rows() || col < 0 ||
+      col >= Cols()) {
     throw std::out_of_range(
         "Matrix index out of range or matrix not allocated.");
   }
@@ -175,8 +175,8 @@ double &S21Matrix::operator()(int row, int col) {
  выделена
  */
 const double &S21Matrix::operator()(int row, int col) const {
-  if (matrix_ == nullptr || row < 0 || row >= rows_ || col < 0 ||
-      col >= cols_) {
+  if (matrix_ == nullptr || row < 0 || row >= Rows() || col < 0 ||
+      col >= Cols()) {
     throw std::out_of_range(
         "Matrix index out of range or matrix not allocated.");
   }
@@ -195,14 +195,14 @@ S21Matrix &S21Matrix::operator=(const S21Matrix &other) {
   }
 
   DeallocateMatrix();
-  rows_ = other.rows_;
-  cols_ = other.cols_;
+  rows_ = other.Rows();
+  cols_ = other.Cols();
   matrix_ = nullptr;
 
-  if (rows_ > 0 && cols_ > 0) {
+  if (Cols() > 0 && Cols() > 0) {
     AllocateMatrix();
-    for (int i = 0; i < rows_; ++i) {
-      for (int j = 0; j < cols_; ++j) {
+    for (int i = 0; i < Rows(); ++i) {
+      for (int j = 0; j < Cols(); ++j) {
         (*this)(i, j) = other(i, j);
       }
     }
@@ -219,8 +219,8 @@ S21Matrix &S21Matrix::operator=(const S21Matrix &other) {
 S21Matrix &S21Matrix::operator=(S21Matrix &&other) {
   DeallocateMatrix();
 
-  rows_ = other.rows_;
-  cols_ = other.cols_;
+  rows_ = other.Rows();
+  cols_ = other.Cols();
   matrix_ = other.matrix_;
 
   other.matrix_ = nullptr;
@@ -268,8 +268,7 @@ double S21Matrix::DetRecursive() const {
     return (*this)(0, 0);
   }
   if (Rows() == 2) {
-    return (*this)(0, 0) * (*this)(1, 1) - 
-           (*this)(0, 1) * (*this)(1, 0);
+    return (*this)(0, 0) * (*this)(1, 1) - (*this)(0, 1) * (*this)(1, 0);
   }
   // https://ru.onlinemschool.com/math/library/matrix/minors/#h2
   // разложение по первой строке
@@ -328,8 +327,8 @@ S21Matrix S21Matrix::CalcComplements() const {
   S21Matrix result = this->MinorMatrix();
   for (int i = 0; i < Rows(); ++i) {
     for (int j = 0; j < Cols(); ++j) {
-      int sign = pow(-1, i+j);
-      result(i, j)= sign * result(i, j);
+      int sign = pow(-1, i + j);
+      result(i, j) = sign * result(i, j);
     }
   }
   return result;

@@ -351,7 +351,6 @@ TEST(S21MatrixTest, MulMatrix1) {
   const S21Matrix expected(3, 3, dataExpected);
   mul_matrix_tc(A, B, true, expected);
 }
-
 TEST(S21MatrixTest, MulMatrix2) {
   double dataA[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   const S21Matrix A(3, 3, dataA);
@@ -361,13 +360,11 @@ TEST(S21MatrixTest, MulMatrix2) {
   const S21Matrix expected(3, 3, dataExpected);
   mul_matrix_tc(A, B, true, expected);
 }
-
 TEST(S21MatrixTest, MulMatrix3) {
   const S21Matrix A(1, 1);
   const S21Matrix B(3, 4);
   mul_matrix_tc(A, B, false);
 }
-
 TEST(S21MatrixTest, MulMatrix4) {
   double dataA[] = {2.2, 2.0, 3.0, 0.0, 4.0, 1.0};
   const S21Matrix A(2, 3, dataA);
@@ -386,7 +383,6 @@ TEST(S21MatrixTest, Determinant1) {
   ASSERT_NO_THROW(result = A.Determinant());
   EXPECT_EQ(result, -48);
 }
-
 TEST(S21MatrixTest, Determinant2) {
   double dataA[] = {1, 2, 3, 4};
   S21Matrix A(2, 2, dataA);
@@ -394,7 +390,6 @@ TEST(S21MatrixTest, Determinant2) {
   ASSERT_NO_THROW(result = A.Determinant());
   EXPECT_EQ(result, -2);
 }
-
 TEST(S21MatrixTest, Determinant3) {
   double dataA[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   S21Matrix A(3, 3, dataA);
@@ -402,7 +397,6 @@ TEST(S21MatrixTest, Determinant3) {
   ASSERT_NO_THROW(result = A.Determinant());
   EXPECT_EQ(result, 0);
 }
-
 TEST(S21MatrixTest, Determinant4) {
   double dataA[] = {10, 2, 3, 4, 5, 6, 7, 8, 9};
   S21Matrix A(3, 3, dataA);
@@ -410,19 +404,16 @@ TEST(S21MatrixTest, Determinant4) {
   ASSERT_NO_THROW(result = A.Determinant());
   EXPECT_EQ(result, -27);
 }
-
 TEST(S21MatrixTest, Determinant5) {
   S21Matrix A(1, 2);
   double result;
   ASSERT_THROW(result = A.Determinant(), std::invalid_argument);
 }
-
 TEST(S21MatrixTest, Determinant6) {
   S21Matrix A(1, 2);
   double result;
   ASSERT_THROW(result = A.Determinant(), std::invalid_argument);
 }
-
 TEST(S21MatrixTest, Determinant7) {
   double dataA[] = {2, 4, 1, 1, 0, 2, 1, 0, 2, 1, 1, 3, 4, 0, 2, 3};
   S21Matrix A(4, 4, dataA);
@@ -430,7 +421,6 @@ TEST(S21MatrixTest, Determinant7) {
   ASSERT_NO_THROW(result = A.Determinant());
   EXPECT_EQ(result, -26);
 }
-
 TEST(S21MatrixTest, Determinant8) {
   double dataA[] = {4.1, 1.2, 1.3, 2.4,  1.5, 1.1, 2.2, -1.3, 1.4,
                     1.5, 3.1, 1.2, 1.3,  1.4, 1.5, 2.1, 1.2,  1.3,
@@ -450,7 +440,6 @@ TEST(S21MatrixTest, Transpose1) {
   ASSERT_NO_THROW(result = A.Transpose());
   EXPECT_EQ(result, expected);
 }
-
 TEST(S21MatrixTest, Transpose2) {
   double dataA[] = {0};
   S21Matrix A(1, 1, dataA);
@@ -460,7 +449,6 @@ TEST(S21MatrixTest, Transpose2) {
   ASSERT_NO_THROW(result = A.Transpose());
   EXPECT_EQ(result, expected);
 }
-
 TEST(S21MatrixTest, Transpose3) {
   double dataA[] = {0, 0, 1, 1};
   S21Matrix A(2, 2, dataA);
@@ -470,7 +458,6 @@ TEST(S21MatrixTest, Transpose3) {
   ASSERT_NO_THROW(result = A.Transpose());
   EXPECT_EQ(result, expected);
 }
-
 TEST(S21MatrixTest, Transpose4) {
   double dataA[] = {0, 0, 1, 1, 1, 2};
   S21Matrix A(2, 3, dataA);
@@ -480,7 +467,6 @@ TEST(S21MatrixTest, Transpose4) {
   ASSERT_NO_THROW(result = A.Transpose());
   EXPECT_EQ(result, expected);
 }
-
 TEST(S21MatrixTest, Transpose5) {
   double dataA[] = {1, 4, 2, 5, 3, 6};
   S21Matrix A(3, 2, dataA);
@@ -497,11 +483,9 @@ TEST(S21MatrixTest, Complemet1) {
   double dataExpected[] = {0, 10, -20, 4, -14, 8, -8, -2, 4};
   S21Matrix expected(3, 3, dataExpected);
   S21Matrix result;
-  A.CalcComplements();
   ASSERT_NO_THROW(result = A.CalcComplements());
   EXPECT_EQ(result, expected);
 }
-
 TEST(S21MatrixTest, Complemet2) {
   double dataA[] = {1, 2, 3, 4};
   S21Matrix A(2, 2, dataA);
@@ -511,7 +495,6 @@ TEST(S21MatrixTest, Complemet2) {
   ASSERT_NO_THROW(result = A.CalcComplements());
   EXPECT_EQ(result, expected);
 }
-
 TEST(S21MatrixTest, Complemet3) {
   S21Matrix A(2, 3);
   S21Matrix result;
