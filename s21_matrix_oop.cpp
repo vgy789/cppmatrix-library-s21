@@ -335,6 +335,22 @@ S21Matrix S21Matrix::CalcComplements() const {
   return result;
 }
 
+S21Matrix S21Matrix::InverseMatrix() const {
+  if (!IsSquare()) {
+    throw std::invalid_argument(
+        "Determinant is only defined for square matrices.");
+  }
+
+  double det = Determinant();
+  if (det == 0) {
+    throw std::invalid_argument("Matrix is singular and cannot be inverted.");
+  }
+
+  S21Matrix M = CalcComplements();
+  S21Matrix MT = M.Transpose();
+  return MT * (1.0 / det);
+}
+
 bool S21Matrix::operator==(const S21Matrix &other) const {
   if (this->Cols() != other.Cols() || this->Rows() != other.Rows()) {
     return false;

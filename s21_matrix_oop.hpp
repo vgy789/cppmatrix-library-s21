@@ -27,6 +27,7 @@ class S21Matrix {
 
   S21Matrix Transpose() const;
   S21Matrix CalcComplements() const;
+  S21Matrix InverseMatrix() const;
 
   void SumMatrix(const S21Matrix &other);
   S21Matrix &operator+=(const S21Matrix &other);

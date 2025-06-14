@@ -517,6 +517,50 @@ TEST(S21MatrixTest, Complemet3) {
   S21Matrix result;
   ASSERT_THROW(result = A.CalcComplements(), std::invalid_argument);
 }
+
+TEST(S21MatrixTest, Inverse1) {
+  double dataA[] = {2, 5, 7, 6, 3, 4, 5, -2, -3};
+  S21Matrix A(3, 3, dataA);
+  double dataExpected[] = {1, -1, 1, -38, 41, -34, 27, -29, 24};
+  S21Matrix expected(3, 3, dataExpected);
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.InverseMatrix());
+  EXPECT_EQ(result, expected);
+}
+TEST(S21MatrixTest, Inverse2) {
+  double dataA[] = {2.1, 5.2, 6.1, 3.2};
+  S21Matrix A(2, 2, dataA);
+  double dataExpected[] = {-0.128, 0.208, 0.244, -0.084};
+  S21Matrix expected(2, 2, dataExpected);
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.InverseMatrix());
+  EXPECT_EQ(result, expected);
+}
+TEST(S21MatrixTest, Inverse3) {
+  double dataA[] = {2, 1, 1, 1, 0, 2, 1, 0, 2, 1, 1, 3, 4, 0, 2, 1};
+  S21Matrix A(4, 4, dataA);
+  double dataExpected[] = {1.375, -0.5, -0.375, -0.25, 1.25, 0, -0.25, -0.5,
+                           -2.5,  1,    0.5,    1,     -0.5, 0, 0.5,   0};
+  S21Matrix expected(4, 4, dataExpected);
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.InverseMatrix());
+  EXPECT_EQ(result, expected);
+}
+TEST(S21MatrixTest, Inverse4) {
+  double dataA[] = {2, 1, 3, 4, 3, 1, 2, 3, 1};
+  S21Matrix A(3, 3, dataA);
+  double dataExpected[] = {0,     0.5,   -0.5,  -0.125, -0.25,
+                           0.625, 0.375, -0.25, 0.125};
+  S21Matrix expected(3, 3, dataExpected);
+  S21Matrix result;
+  ASSERT_NO_THROW(result = A.InverseMatrix());
+  EXPECT_EQ(result, expected);
+}
+TEST(S21MatrixTest, Inverse5) {
+  S21Matrix A(1, 2);
+  S21Matrix result;
+  ASSERT_THROW(result = A.InverseMatrix(), std::invalid_argument);
+}
 }  // namespace
 
 int main(int argc, char** argv) {
