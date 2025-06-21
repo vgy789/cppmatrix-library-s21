@@ -41,8 +41,8 @@ gcov_report:	clean_gcov		## Generate gcov report (only gcc compiler)
     	-o important_report.info
 	genhtml -o $(GCOV_REPORT_DIR) important_report.info
 
-leaks_test:		## Check leaks on BSD Unix
+leaks_test:	$(TEST_RUNNER)		## Check leaks on BSD Unix
 	leaks --atExit -- ./$(TEST_RUNNER)
 
-valgrind_test:		## Check leaks on Linux
+valgrind_test:	$(TEST_RUNNER)		## Check leaks on Linux
 	valgrind --tool=memcheck --leak-check=yes ./$(TEST_RUNNER)

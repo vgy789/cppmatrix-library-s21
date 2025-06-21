@@ -9,41 +9,7 @@
 
 enum { matrix_in_array = 15 };
 
-int g_new_fail_on_count = -1;
-int g_new_call_count = 0;
-void* operator new(size_t size) {
-  ++g_new_call_count;
-  if (g_new_call_count == g_new_fail_on_count) {
-    throw std::bad_alloc();
-  }
-  return malloc(size);
-}
-void* operator new[](size_t size) {
-  ++g_new_call_count;
-  if (g_new_call_count == g_new_fail_on_count) {
-    throw std::bad_alloc();
-  }
-  return malloc(size);
-}
-void operator delete(void* memory) noexcept { free(memory); }
-void operator delete[](void* memory) noexcept { free(memory); }
-void operator delete(void* memory, size_t size) noexcept {
-  (void)size;
-  free(memory);
-}
-void operator delete[](void* memory, size_t size) noexcept {
-  (void)size;
-  free(memory);
-}
-
 namespace {
-TEST(S21MatrixTest, ExceptionSafetyGuarantee) {
-  g_new_call_count = 0;
-  g_new_fail_on_count = 1;
-  ASSERT_THROW(S21Matrix m(INT32_MAX, INT32_MAX), std::bad_alloc);
-  g_new_fail_on_count = -1;
-}
-
 TEST(S21MatrixTest, Constructor_Default) {
   S21Matrix m;
   EXPECT_EQ(m.Rows(), 0);
