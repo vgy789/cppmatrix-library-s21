@@ -81,14 +81,15 @@ void S21Matrix::DeallocateMatrix() {
  *          Элементы матрицы инициализируются нулями.
  */
 S21Matrix::S21Matrix(int rows, int cols)
-    : rows_(0), cols_(0), matrix_(nullptr) {
-  if (rows <= 0 || cols <= 0) {
+    : rows_(rows), cols_(cols), matrix_(nullptr) {
+  if (rows < 0 || cols < 0) {
     throw std::invalid_argument("Matrix dimensions must be positive.");
   }
-  rows_ = rows;
-  cols_ = cols;
+  if (rows > 0 && cols > 0) {
   AllocateMatrix();
   InitializeMatrix(nullptr);
+}
+  // rows > 0 && cols == 0 || rows == 0 && cols > 0 || rows == 0 && cols == 0
 }
 
 /**

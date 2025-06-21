@@ -50,7 +50,7 @@ TEST(S21MatrixTest, Constructor_Default) {
   EXPECT_EQ(m.Cols(), 0);
 }
 
-TEST(S21MatrixTest, Constructor_Parameterized) {
+TEST(S21MatrixTest, Constructor_Parameterized1) {
   const int N = 55;
   const int M = 57;
   for (int i = -3; i < N; ++i) {
@@ -59,6 +59,14 @@ TEST(S21MatrixTest, Constructor_Parameterized) {
       check_zero_values(i, j);
     }
   }
+}
+
+TEST(S21MatrixTest, Constructor_Parameterized2) {
+  ASSERT_NO_THROW(S21Matrix dst(0, 0));
+  ASSERT_NO_THROW(S21Matrix dst(0, 1));
+  ASSERT_NO_THROW(S21Matrix dst(1, 0));
+  ASSERT_THROW(S21Matrix dst(-1, 0), std::invalid_argument);
+  ASSERT_THROW(S21Matrix dst(0, -1), std::invalid_argument);
 }
 
 TEST(S21MatrixTest, Getters) {

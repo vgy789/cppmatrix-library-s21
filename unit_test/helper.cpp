@@ -12,7 +12,7 @@ void random_matrix(S21Matrix& matrix) {
 }
 
 void check_sizes(int i, int j) {
-  if (i <= 0 || j <= 0) {
+  if (i < 0 || j < 0) {
     ASSERT_THROW(S21Matrix(i, j), std::invalid_argument);
   } else {
     S21Matrix matrix(i, j);
@@ -22,7 +22,7 @@ void check_sizes(int i, int j) {
 }
 
 void check_zero_values(int i, int j) {
-  if (i <= 0 || j <= 0) {
+  if (i < 0 || j < 0) {
     ASSERT_THROW(S21Matrix(i, j), std::invalid_argument);
   } else {
     S21Matrix matrix(i, j);
