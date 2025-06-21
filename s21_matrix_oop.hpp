@@ -10,7 +10,7 @@ class S21Matrix {
 
  public:
   static const double kEpsilon;
-  S21Matrix() : rows_(0), cols_(0), matrix_(nullptr) {};
+  S21Matrix() : rows_(0), cols_(0), matrix_(nullptr){};
   S21Matrix(int rows, int cols);
   S21Matrix(int rows, int cols, const double array[]);
   S21Matrix(const S21Matrix &other);
