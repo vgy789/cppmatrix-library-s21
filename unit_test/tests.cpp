@@ -27,6 +27,14 @@ void* operator new[](size_t size) {
 }
 void operator delete(void* memory) noexcept { free(memory); }
 void operator delete[](void* memory) noexcept { free(memory); }
+void operator delete(void* memory, size_t size) noexcept {
+  (void)size;
+  free(memory);
+}
+void operator delete[](void* memory, size_t size) noexcept {
+  (void)size;
+  free(memory);
+}
 
 namespace {
 TEST(S21MatrixTest, ExceptionSafetyGuarantee) {
