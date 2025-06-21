@@ -32,7 +32,7 @@ gcov_report:	clean_gcov		## Generate gcov report (only gcc compiler)
 		echo "Bug: Gcov report is not supported by the Clang compiler. Use GCC instead."; \
 		exit 1; \
 	fi
-	$(MAKE) -C $(TEST_RUNNER)
+	$(MAKE) "$(TEST_RUNNER)" CXXFLAGS+="$(CXXFLAGS)"
 	./$(TEST_RUNNER)
 	lcov -c --directory ./ -o report.info --exclude "$(TEST_DIR)/*" --exclude "googletest/*"
 	lcov --extract report.info \
