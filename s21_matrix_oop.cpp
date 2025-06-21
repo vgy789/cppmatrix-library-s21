@@ -86,9 +86,9 @@ S21Matrix::S21Matrix(int rows, int cols)
     throw std::invalid_argument("Matrix dimensions must be positive.");
   }
   if (rows > 0 && cols > 0) {
-  AllocateMatrix();
-  InitializeMatrix(nullptr);
-}
+    AllocateMatrix();
+    InitializeMatrix(nullptr);
+  }
   // rows > 0 && cols == 0 || rows == 0 && cols > 0 || rows == 0 && cols == 0
 }
 
@@ -228,6 +228,7 @@ S21Matrix &S21Matrix::operator=(S21Matrix &&other) {
   return *this;
 }
 
+#ifdef DEBUG
 void S21Matrix::Print() const {
   for (int i = 0; i < this->Rows(); ++i) {
     if (i != 0) {
@@ -241,6 +242,7 @@ void S21Matrix::Print() const {
     }
   }
 }
+#endif
 
 S21Matrix S21Matrix::Submatrix(int row, int col) const {
   bool row_passed = false;

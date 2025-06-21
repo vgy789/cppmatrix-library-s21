@@ -137,6 +137,23 @@ TEST(S21MatrixTest, Constructor_Copy) {
   }
 }
 
+TEST(S21MatrixTest, Copy) {
+  S21Matrix src[matrix_in_array];
+
+  for (int i = 0; i < matrix_in_array; ++i) {
+    random_matrix(src[i]);
+  }
+
+  for (int i = 0; i < matrix_in_array; ++i) {
+    S21Matrix dst(0, 0);
+    dst = src[i];
+    EXPECT_EQ(dst == src[i], true);
+    // если указатели matrix_ разные, то функции не будут равны
+    src[i](0, 0) += 1;
+    EXPECT_EQ(dst == src[i], false);
+  }
+}
+
 TEST(S21MatrixTest, Constructor_Move) {
   S21Matrix src[matrix_in_array];
 
