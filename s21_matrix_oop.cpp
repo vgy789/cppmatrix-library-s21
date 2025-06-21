@@ -1,4 +1,4 @@
-#include "s21_matrix_oop.hpp"
+#include "s21_matrix_oop.h"
 
 #include <cmath>
 #include <cstddef>

@@ -1,5 +1,5 @@
-#ifndef SRC_S21_MATRIX_OOP_HPP
-#define SRC_S21_MATRIX_OOP_HPP
+#ifndef SRC_S21_MATRIX_OOP_H
+#define SRC_S21_MATRIX_OOP_H
 
 #include <cassert>
 #include <cstddef>
@@ -59,4 +59,4 @@ class S21Matrix {
   S21Matrix MinorMatrix() const;
 };
 
-#endif  // SRC_S21_MATRIX_OOP_HPP
+#endif  // SRC_S21_MATRIX_OOP_H

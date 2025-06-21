@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <stdexcept>
 
-#include "../s21_matrix_oop.hpp"
 #include "gtest/gtest.h"
 
 enum { matrix_in_array = 15 };

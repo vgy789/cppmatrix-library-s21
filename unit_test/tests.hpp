@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include "../s21_matrix_oop.hpp"
+#include "../s21_matrix_oop.h"
 
 void random_matrix(S21Matrix& matrix);
 void check_sizes(int i, int j);
