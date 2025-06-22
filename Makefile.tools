@@ -5,11 +5,14 @@ FMT_FILES = find ./ \
 	-name '*.hpp' -not -path './googletest/*' -print0
 
 # --- Targets ---
-.PHONY: cppcheck clean_gcov doxydoc fmtcheck fmt submodules gcov_report leaks valgrind
+.PHONY: cppcheck clean_gcov clean_runner doxydoc fmtcheck fmt submodules gcov_report leaks valgrind
 
 clean_gcov:
 	find . -name "*.o" -or -name "*.gcda" -or -name "*.gcno" -or -name "*.info" | xargs rm -f
 	rm -rf $(GCOV_REPORT_DIR)/ 
+
+clean_runner:
+	rm -f $(TEST_RUNNER)
 
 cppcheck:		## Start static code analyzing
 	cppcheck --enable=all --suppress=missingIncludeSystem .

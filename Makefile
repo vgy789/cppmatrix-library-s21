@@ -1,18 +1,14 @@
 # --- CPP ---
-UNAME = $(shell uname -s)
-ifeq ($(UNAME),Darwin)
-CXX=clang++
-else
-CXX=g++
-endif
-
-CPP_STD = -std=c++17
+CXX=g++		## g++ or clang++
+CXX_STD = -std=c++11
 CXXFLAGS = -Wall -Werror -Wextra
 OPTFLAGS = -O2 -flto -march=native
 LIBS = 
 AR = ar
 
 # --- GTest ---
+CMAKE_CXX_STD = 17
+GTEST_CXX_STD = -std=c++17
 G_DIR = googletest
 GTEST_DIR = googletest/googletest
 GTEST_BUILD_DIR = googletest/build
@@ -36,9 +32,8 @@ MAINBINARIES = s21_matrix_oop.a
 all:	$(MAINBINARIES)		## Build all
 
 %.o:	%.cpp
-	$(CXX) $(CPP_STD) $(CXXFLAGS) $(LIBS) -c $^ -o $@
+	$(CXX) $(CXX_STD) $(CXXFLAGS) $(OPTFLAGS) $(LIBS) -c $^ -o $@
 
-s21_matrix_oop.a:	CXXFLAGS += $(OPTFLAGS)
 s21_matrix_oop.a:	$(OBJMODULES)		## Build static library
 	$(AR) -rcs $@ $^
 
@@ -47,7 +42,7 @@ test:	clean_runner	$(TEST_RUNNER)		## Run tests
 	./$(TEST_RUNNER)
 
 $(TEST_RUNNER): $(GTEST_LIBRARIES) $(MAINBINARIES)
-	$(CXX) $(CPP_STD) $(CXXFLAGS) -I$(GTEST_DIR)/include \
+	$(CXX) $(GTEST_CXX_STD) $(CXXFLAGS) $(OPTFLAGS) -I$(GTEST_DIR)/include \
 		$(TEST_SOURCE) $(MAINBINARIES) \
 		-L$(GTEST_LIB_DIR) -lgtest -lgtest_main -lpthread \
 		-o $@
@@ -56,15 +51,13 @@ $(GTEST_LIBRARIES):	submodules		## Build googletest
 	mkdir -p $(GTEST_BUILD_DIR)
 	cmake -S $(G_DIR) -B $(GTEST_BUILD_DIR) \
 		-DBUILD_GMOCK=OFF -DCMAKE_CXX_COMPILER=$(CXX) \
-		-DCMAKE_CXX_STANDARD=17
+		-DCMAKE_CXX_STANDARD=$(CMAKE_CXX_STD)
 	$(MAKE) -C $(GTEST_BUILD_DIR)
 
 clean: clean_runner	clean_gcov		## Clean up
 	find . -name "*.o" | xargs rm -f
 	rm -f $(MAINBINARIES)
 	rm -rf $(GTEST_BUILD_DIR)
-clean_runner:
-	rm -f $(TEST_RUNNER)
 
 help:		## Display this help screen
 	@grep -h -E '^[a-zA-Z0-9_.-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
