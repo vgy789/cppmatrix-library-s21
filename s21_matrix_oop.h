@@ -1,8 +1,11 @@
 #ifndef SRC_S21_MATRIX_OOP_H
 #define SRC_S21_MATRIX_OOP_H
 
-#include <cassert>
-#include <cstddef>
+#include <cmath>
+#ifdef DEBUG
+#include <cstdio>
+#endif
+#include <stdexcept>
 
 class S21Matrix {
   int rows_, cols_;

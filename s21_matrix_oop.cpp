@@ -1,10 +1,5 @@
 #include "s21_matrix_oop.h"
 
-#include <cmath>
-#include <cstddef>
-#include <cstdio>
-#include <stdexcept>
-
 const double S21Matrix::kEpsilon = 1.0e-6;
 
 /**
