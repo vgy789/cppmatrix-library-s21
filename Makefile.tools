@@ -5,30 +5,36 @@ FMT_FILES = find ./ \
 	-name '*.hpp' -not -path './googletest/*' -print0
 
 # --- Targets ---
-.PHONY: cppcheck clean_gcov clean_runner doxydoc fmtcheck fmt submodules gcov_report leaks valgrind
-
+PHONY += clean_gcov
 clean_gcov:
 	find . -name "*.o" -or -name "*.gcda" -or -name "*.gcno" -or -name "*.info" | xargs rm -f
 	rm -rf $(GCOV_REPORT_DIR)/ 
 
+PHONY += clean_runner
 clean_runner:
 	rm -f $(TEST_RUNNER)
 
+PHONY += cppcheck
 cppcheck:		## Start static code analyzing
 	cppcheck --enable=all --suppress=missingIncludeSystem .
 
+PHONY += doxydoc
 doxydoc:		## Generate documentation with Doxygen
 	doxygen Doxyfile
 
+PHONY += fmtcheck
 fmtcheck:		## Check formatting code
 	$(FMT_FILES) | xargs -0 $(CODE_STYLE) -n 
 
+PHONY += fmt
 fmt:		## Start formatting code
 	$(FMT_FILES) | xargs -0 $(CODE_STYLE) -i
 
+PHONY += submodules
 submodules:		## Update submodules
 	git submodule update --init --recursive
 
+PHONY += gcov_report
 gcov_report:	CXXFLAGS += --coverage
 gcov_report:	clean_gcov		## Generate gcov report (only gcc compiler)
 	@if [ "$(CXX)" = "clang++" ]; then \
@@ -44,8 +50,10 @@ gcov_report:	clean_gcov		## Generate gcov report (only gcc compiler)
     	-o important_report.info
 	genhtml -o $(GCOV_REPORT_DIR) important_report.info
 
+PHONY += leaks_test
 leaks_test:	$(TEST_RUNNER)		## Check leaks on BSD Unix
 	leaks --atExit -- ./$(TEST_RUNNER)
 
+PHONY += valgrind_test
 valgrind_test:	$(TEST_RUNNER)		## Check leaks on Linux
 	valgrind --tool=memcheck --leak-check=yes ./$(TEST_RUNNER)

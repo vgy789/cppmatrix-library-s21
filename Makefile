@@ -27,8 +27,7 @@ OBJMODULES = $(SRCMODULES:.cpp=.o)
 MAINBINARIES = s21_matrix_oop.a
 
 # --- Targets ---
-.PHONY: all test clean help
-
+PHONY := all
 all:	$(MAINBINARIES)		## Build all
 
 %.o:	%.cpp
@@ -37,6 +36,7 @@ all:	$(MAINBINARIES)		## Build all
 s21_matrix_oop.a:	$(OBJMODULES)		## Build static library
 	$(AR) -rcs $@ $^
 
+PHONY += test
 test:	CXXFLAGS += -g	# CXXFLAGS = -g
 test:	clean_runner	$(TEST_RUNNER)		## Run tests
 	./$(TEST_RUNNER)
@@ -54,13 +54,18 @@ $(GTEST_LIBRARIES):	submodules		## Build googletest
 		-DCMAKE_CXX_STANDARD=$(CMAKE_CXX_STD)
 	$(MAKE) -C $(GTEST_BUILD_DIR)
 
+PHONY += clean
 clean: clean_runner	clean_gcov		## Clean up
 	find . -name "*.o" | xargs rm -f
 	rm -f $(MAINBINARIES)
 	rm -rf $(GTEST_BUILD_DIR)
 
+PHONY += help
 help:		## Display this help screen
 	@grep -h -E '^[a-zA-Z0-9_.-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 include Makefile.tools
+
+# Declare the contents of the PHONY variable as phony.
+.PHONY: $(PHONY)
